@@ -50,6 +50,11 @@ class AuthController extends BaseController
         // Vérification dans Dolibarr
         $thirdparty = service('dolibarr')->getThirdpartyByEmail($email);
 
+        // Dolibarr injoignable (cURL en échec ou erreur serveur) : ne pas confondre avec "email inconnu"
+        if (isset($thirdparty['error']) && ((int) ($thirdparty['status'] ?? 0) === 0 || (int) $thirdparty['status'] >= 500)) {
+            return view('auth/maintenance');
+        }
+
         if (! empty($thirdparty) && isset($thirdparty['id']) && ! isset($thirdparty['error'])) {
             $partyId = (int) $thirdparty['id'];
 
