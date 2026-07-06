@@ -19,6 +19,11 @@ certificats et factures depuis une intégration avec l'API REST de [Dolibarr](ht
 - Gestion du compte (email, mot de passe, coordonnées, numéro de TVA via VIES)
 - Interface d'administration : configuration de l'application, gestion des utilisateurs, journaux d'activité, test d'envoi SMTP
 
+## Prérequis
+
+- PHP 8.2+ avec les extensions : `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
+- Node.js + npm
+
 ## Installation
 
 ```bash
