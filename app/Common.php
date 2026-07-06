@@ -13,3 +13,16 @@
  *
  * @see: https://codeigniter.com/user_guide/extending/common.html
  */
+
+if (! function_exists('admin_url')) {
+    /**
+     * Segment d'URL de l'espace admin, configurable via app.admin_path (défaut : 'admin').
+     * Permet de changer le chemin d'accès à l'administration par mesure de sécurité.
+     */
+    function admin_url(string $path = ''): string
+    {
+        $prefix = trim((string) env('app.admin_path', 'admin'), '/');
+
+        return trim($prefix . '/' . ltrim($path, '/'), '/');
+    }
+}

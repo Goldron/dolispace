@@ -31,7 +31,7 @@ $imgSrc = static function (string $path): string {
     <?php if (empty($config)): ?>
         <p class="px-5 py-8 text-center text-sm text-gray-400">Aucune entrée.</p>
     <?php else: ?>
-        <form action="<?= site_url('admin/config/update') ?>" method="post" enctype="multipart/form-data">
+        <form action="<?= site_url(admin_url('config/update')) ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -203,7 +203,7 @@ $imgSrc = static function (string $path): string {
 
 <?php foreach ($config as $row): if (! (bool) ($row['protected'] ?? true)): ?>
     <form id="delete-row-<?= $row['id'] ?>"
-          action="<?= site_url('admin/config/' . $row['id'] . '/delete') ?>"
+          action="<?= site_url(admin_url('config/' . $row['id'] . '/delete')) ?>"
           method="post" hidden>
         <?= csrf_field() ?>
     </form>
@@ -215,7 +215,7 @@ $imgSrc = static function (string $path): string {
         <h2 class="text-sm font-semibold text-gray-800">Test d'envoi d'email</h2>
         <p class="mt-0.5 text-xs text-gray-400">Envoie un email de test avec la configuration SMTP actuelle.</p>
     </div>
-    <form action="<?= site_url('admin/config/test-email') ?>" method="post" class="p-5">
+    <form action="<?= site_url(admin_url('config/test-email')) ?>" method="post" class="p-5">
         <?= csrf_field() ?>
         <div class="flex items-end gap-x-3">
             <div class="flex-1 max-w-sm">
@@ -239,7 +239,7 @@ $imgSrc = static function (string $path): string {
     <div class="px-5 py-4 border-b border-gray-100">
         <h2 class="text-sm font-semibold text-gray-800">Ajouter une clé</h2>
     </div>
-    <form action="<?= site_url('admin/config/store') ?>" method="post" class="p-5">
+    <form action="<?= site_url(admin_url('config/store')) ?>" method="post" class="p-5">
         <?= csrf_field() ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>

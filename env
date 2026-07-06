@@ -41,6 +41,8 @@ database.default.DBPrefix = coop_
 
 # app.admin_login    =
 # app.admin_password =
+# Chemin d'accès à l'administration (défaut : admin) — à changer par mesure de sécurité
+# app.admin_path      = admin
 
 #--------------------------------------------------------------------
 # CHIFFREMENT

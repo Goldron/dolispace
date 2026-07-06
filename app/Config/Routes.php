@@ -33,11 +33,11 @@ $routes->group('dashboard', ['filter' => 'auth'], static function ($routes) {
     $routes->post('account/cancel-password',             'AccountController::cancelPassword');
 });
 
-$routes->get('admin/login',  'AdminController::login');
-$routes->post('admin/login', 'AdminController::doLogin');
-$routes->get('admin/logout', 'AdminController::logout');
+$routes->get(admin_url('login'),  'AdminController::login');
+$routes->post(admin_url('login'), 'AdminController::doLogin');
+$routes->get(admin_url('logout'), 'AdminController::logout');
 
-$routes->group('admin', ['filter' => 'admin'], static function ($routes) {
+$routes->group(admin_url(), ['filter' => 'admin'], static function ($routes) {
     $routes->get('/',                      'AdminController::index');
     $routes->post('users/(:num)/delete',   'AdminController::deleteUser/$1');
     $routes->post('users/clear',           'AdminController::clearUsers');

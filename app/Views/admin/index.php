@@ -38,12 +38,12 @@
             </p>
         </div>
         <div class="flex items-center gap-x-2">
-            <form action="<?= site_url('admin') ?>" method="get" class="flex items-center gap-x-1.5">
+            <form action="<?= site_url(admin_url()) ?>" method="get" class="flex items-center gap-x-1.5">
                 <input type="text" name="q" value="<?= esc($search) ?>" placeholder="Rechercher un user ou une société…"
                        class="py-1.5 px-2.5 text-xs border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500">
                 <button type="submit" class="py-1.5 px-2.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">Rechercher</button>
                 <?php if ($search !== ''): ?>
-                    <a href="<?= site_url('admin') ?>" class="py-1.5 px-2.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 transition">Réinitialiser</a>
+                    <a href="<?= site_url(admin_url()) ?>" class="py-1.5 px-2.5 text-xs font-medium rounded-lg text-gray-500 hover:bg-gray-100 transition">Réinitialiser</a>
                 <?php endif ?>
             </form>
             <button type="button" data-hs-overlay="#hs-clear-users-modal"
@@ -84,7 +84,7 @@
                             <td class="px-5 py-3 text-gray-500 text-right"><?= esc((string)($user['last_login_at'] ?? '—')) ?></td>
                             <td class="px-5 py-3 text-gray-500 text-right"><?= esc((string)$user['created_at']) ?></td>
                             <td class="px-5 py-3 text-right">
-                                <form action="<?= site_url('admin/users/' . $user['id'] . '/delete') ?>" method="post"
+                                <form action="<?= site_url(admin_url('users/' . $user['id'] . '/delete')) ?>" method="post"
                                       onsubmit="return confirm('Supprimer l\'utilisateur « <?= esc($user['email'], 'js') ?> » ?')">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="text-gray-400 hover:text-red-500 transition" title="Supprimer">
@@ -202,7 +202,7 @@
                         class="py-2 px-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 transition">
                     Annuler
                 </button>
-                <form action="<?= site_url('admin/users/clear') ?>" method="post">
+                <form action="<?= site_url(admin_url('users/clear')) ?>" method="post">
                     <?= csrf_field() ?>
                     <button type="submit" class="py-2 px-3 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
                         Oui, tout supprimer
@@ -235,7 +235,7 @@
                         class="py-2 px-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 transition">
                     Annuler
                 </button>
-                <form action="<?= site_url('admin/logs/clear') ?>" method="post">
+                <form action="<?= site_url(admin_url('logs/clear')) ?>" method="post">
                     <?= csrf_field() ?>
                     <button type="submit" class="py-2 px-3 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
                         Oui, tout supprimer

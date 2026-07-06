@@ -19,7 +19,7 @@
                 <nav class="flex items-center gap-x-1">
                     <?php
                     $currentUri = ltrim(str_replace(site_url(), '', current_url()), '/');
-                    $navLinks   = ['admin' => 'Tableau de bord', 'admin/status' => 'État du système', 'admin/config' => 'Configuration'];
+                    $navLinks   = [admin_url() => 'Tableau de bord', admin_url('status') => 'État du système', admin_url('config') => 'Configuration'];
                     foreach ($navLinks as $uri => $label):
                         $active = $currentUri === $uri;
                     ?>
@@ -30,7 +30,7 @@
                 </nav>
                 <div class="flex items-center gap-x-4">
                     <span class="text-sm text-gray-500"><?= esc((string) session()->get('admin_login')) ?></span>
-                    <a href="<?= site_url('admin/logout') ?>" class="text-sm text-red-600 hover:underline">Déconnexion</a>
+                    <a href="<?= site_url(admin_url('logout')) ?>" class="text-sm text-red-600 hover:underline">Déconnexion</a>
                 </div>
             </div>
         </nav>

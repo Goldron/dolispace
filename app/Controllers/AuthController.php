@@ -47,17 +47,15 @@ class AuthController extends BaseController
             return redirect()->to('auth/password');
         }
 
-        // Vérification dans Dolibarr
-        $thirdparty = service('dolibarr')->getThirdpartyByEmail($email);
+        // Vérification dans Dolibarr : contact d'abord, tiers ensuite
+        $partyId = $this->resolvePartyIdFromEmail($email);
 
         // Dolibarr injoignable (cURL en échec ou erreur serveur) : ne pas confondre avec "email inconnu"
-        if (isset($thirdparty['error']) && ((int) ($thirdparty['status'] ?? 0) === 0 || (int) $thirdparty['status'] >= 500)) {
+        if ($partyId === false) {
             return view('auth/maintenance');
         }
 
-        if (! empty($thirdparty) && isset($thirdparty['id']) && ! isset($thirdparty['error'])) {
-            $partyId = (int) $thirdparty['id'];
-
+        if ($partyId !== null) {
             // Un compte local est déjà rattaché à ce tiers → orienter vers le bon email
             $existing = $this->users->findByPartyId($partyId);
             if ($existing) {
@@ -83,6 +81,40 @@ class AuthController extends BaseController
         }
 
         return view('auth/denied');
+    }
+
+    // Résout l'ID du tiers Dolibarr à partir d'un email : contact d'abord, tiers ensuite.
+    // Retourne l'ID du tiers, null si aucune correspondance, ou false si Dolibarr est injoignable.
+    private function resolvePartyIdFromEmail(string $email): int|false|null
+    {
+        $dolibarr = service('dolibarr');
+
+        if (cfg('search_contact_first', true)) {
+            $contact = $dolibarr->getContactByEmail($email);
+
+            if (isset($contact['error'])) {
+                $status = (int) ($contact['status'] ?? 0);
+                if ($status === 0 || $status >= 500) {
+                    return false;
+                }
+            } elseif (! empty($contact) && isset($contact['id']) && ! empty($contact['socid'])) {
+                return (int) $contact['socid'];
+            }
+        }
+
+        $thirdparty = $dolibarr->getThirdpartyByEmail($email);
+
+        if (isset($thirdparty['error'])) {
+            $status = (int) ($thirdparty['status'] ?? 0);
+
+            return ($status === 0 || $status >= 500) ? false : null;
+        }
+
+        if (! empty($thirdparty) && isset($thirdparty['id'])) {
+            return (int) $thirdparty['id'];
+        }
+
+        return null;
     }
 
     // GET /auth/pending

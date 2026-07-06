@@ -29,7 +29,7 @@
                 </div>
             <?php endif ?>
 
-            <?= form_open('admin/login') ?>
+            <?= form_open(admin_url('login')) ?>
 
                 <div class="mb-4">
                     <label for="login" class="block text-sm font-medium text-gray-700 mb-1.5">Identifiant</label>

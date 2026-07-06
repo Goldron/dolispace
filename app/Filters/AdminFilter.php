@@ -11,7 +11,7 @@ class AdminFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null): ResponseInterface|null
     {
         if (! session()->get('admin_logged_in')) {
-            return redirect()->to('admin/login')->with('error', 'Accès réservé aux administrateurs.');
+            return redirect()->to(admin_url('login'))->with('error', 'Accès réservé aux administrateurs.');
         }
 
         return null;

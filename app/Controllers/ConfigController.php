@@ -42,7 +42,7 @@ class ConfigController extends BaseController
                     $configKey,
                     $configKey === 'logo_url' ? ', SVG' : ''
                 );
-                return redirect()->to('admin/config')->with('error', $msg);
+                return redirect()->to(admin_url('config'))->with('error', $msg);
             }
             if ($result !== null) {
                 $overrides[$configKey] = $result;
@@ -80,7 +80,7 @@ class ConfigController extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to('admin/config')->with('success', 'Configuration mise à jour.');
+        return redirect()->to(admin_url('config'))->with('success', 'Configuration mise à jour.');
     }
 
     public function store(): \CodeIgniter\HTTP\RedirectResponse
@@ -91,12 +91,12 @@ class ConfigController extends BaseController
         $desc  = trim($this->request->getPost('description') ?? '');
 
         if (empty($key)) {
-            return redirect()->to('admin/config')->with('error', 'La clé est obligatoire.');
+            return redirect()->to(admin_url('config'))->with('error', 'La clé est obligatoire.');
         }
 
         model(ConfigModel::class)->put($key, $value, $type, $desc ?: null);
 
-        return redirect()->to('admin/config')->with('success', "Clé « {$key} » ajoutée.");
+        return redirect()->to(admin_url('config'))->with('success', "Clé « {$key} » ajoutée.");
     }
 
     public function delete(int $id): \CodeIgniter\HTTP\RedirectResponse
@@ -104,12 +104,12 @@ class ConfigController extends BaseController
         $row = model(ConfigModel::class)->find($id);
 
         if (! $row || (bool) $row['protected']) {
-            return redirect()->to('admin/config')->with('error', 'Cette clé est protégée et ne peut pas être supprimée.');
+            return redirect()->to(admin_url('config'))->with('error', 'Cette clé est protégée et ne peut pas être supprimée.');
         }
 
         model(ConfigModel::class)->delete($id);
 
-        return redirect()->to('admin/config')->with('success', 'Entrée supprimée.');
+        return redirect()->to(admin_url('config'))->with('success', 'Entrée supprimée.');
     }
 
     public function testEmail(): \CodeIgniter\HTTP\RedirectResponse
@@ -117,7 +117,7 @@ class ConfigController extends BaseController
         $to = trim($this->request->getPost('test_email_to') ?? '');
 
         if (empty($to) || ! filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->to('admin/config')->with('error', 'Adresse email invalide.');
+            return redirect()->to(admin_url('config'))->with('error', 'Adresse email invalide.');
         }
 
         $email = make_email();
@@ -126,10 +126,10 @@ class ConfigController extends BaseController
         $email->setMessage(view('admin/emails/test_email', ['to' => $to]));
 
         if (! $email->send(false)) {
-            return redirect()->to('admin/config')->with('error', 'Échec de l\'envoi : ' . $email->printDebugger(['headers', 'subject', 'body']));
+            return redirect()->to(admin_url('config'))->with('error', 'Échec de l\'envoi : ' . $email->printDebugger(['headers', 'subject', 'body']));
         }
 
-        return redirect()->to('admin/config')->with('success', "Email de test envoyé à {$to}.");
+        return redirect()->to(admin_url('config'))->with('success', "Email de test envoyé à {$to}.");
     }
 
     private function handleImageUpload(string $inputName, string $basename): string|false|null
