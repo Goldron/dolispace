@@ -1,13 +1,12 @@
 {
-    "name": "codeigniter4/appstarter",
-    "description": "CodeIgniter4 starter app",
+    "name": "goldron/dolispace",
+    "description": "Espace client Dolibarr — devis, commandes, expéditions, certificats et factures",
     "license": "MIT",
     "type": "project",
-    "homepage": "https://codeigniter.com",
+    "homepage": "https://www.siladel.fr",
     "support": {
-        "forum": "https://forum.codeigniter.com/",
-        "source": "https://github.com/codeigniter4/CodeIgniter4",
-        "slack": "https://codeigniterchat.slack.com"
+        "source": "https://github.com/Goldron/dolispace",
+        "issues": "https://github.com/Goldron/dolispace/issues"
     },
     "require": {
         "php": "^8.2",
