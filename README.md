@@ -3,6 +3,10 @@
 Espace client web permettant aux clients de consulter leurs devis, commandes, expéditions,
 certificats et factures depuis une intégration avec l'API REST de [Dolibarr](https://www.dolibarr.org).
 
+Le logiciel gère ses propres comptes utilisateurs (aucun compte à créer ou gérer côté Dolibarr),
+n'expose jamais Dolibarr directement à Internet — seule cette application dialogue avec son API,
+en interne — et peut être installé sur un serveur distinct de celui de Dolibarr.
+
 ## Stack technique
 
 - [CodeIgniter 4](https://codeigniter.com) (PHP)
@@ -19,7 +23,7 @@ certificats et factures depuis une intégration avec l'API REST de [Dolibarr](ht
   (`admin/config` → carte "Fonctionnalités"), masqués automatiquement si le module Dolibarr correspondant
   n'est pas détecté
 - Espace de dépôt de fichiers (uploads)
-- Gestion du compte (email, mot de passe, coordonnées, numéro de TVA via VIES)
+- Gestion du compte (email, mot de passe, coordonnées, TVA intracommunautaire via VIES)
 - Interface d'administration : configuration de l'application, gestion des utilisateurs (recherche,
   suppression, purge), journaux d'activité, fichiers uploadés, diagnostics API Dolibarr (`admin/status`),
   test d'envoi SMTP
