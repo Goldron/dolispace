@@ -15,11 +15,60 @@ $imgSrc = static function (string $path): string {
     $abs = FCPATH . ltrim($path, '/');
     return esc($path) . (is_file($abs) ? '?v=' . filemtime($abs) : '');
 };
+
+// Fonctionnalités mises en évidence en tête de page (toggles des modules Dolibarr optionnels)
+$featureLabels = [
+    'expedition_enabled'         => 'Expéditions',
+    'certificatsclients_enabled' => 'Certificats clients',
+    'commande_enabled'           => 'Commandes',
+    'propal_enabled'             => 'Devis / Propositions',
+    'facture_enabled'            => 'Factures',
+];
+$configByKey = array_column($config, null, 'config_key');
+$tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLabels[$row['config_key']])));
 ?>
 
 <div class="mb-8">
     <h1 class="text-xl font-semibold text-gray-900">Configuration</h1>
     <p class="mt-1 text-sm text-gray-500">Paramètres de l'application stockés en base de données.</p>
+</div>
+
+<!-- Fonctionnalités -->
+<div class="bg-white rounded-xl border border-gray-200 mb-8">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h2 class="text-sm font-semibold text-gray-800">Fonctionnalités</h2>
+        <p class="mt-0.5 text-xs text-gray-400">Active ou désactive les modules Dolibarr optionnels de l'espace client.</p>
+    </div>
+    <ul class="divide-y divide-gray-100">
+        <?php foreach ($featureLabels as $key => $label): ?>
+            <?php
+            $row = $configByKey[$key] ?? null;
+            if (! $row || ! ($featureModulesAvailable[$key] ?? true)) continue;
+            ?>
+            <li class="flex items-center justify-between px-5 py-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-800"><?= esc($label) ?></p>
+                    <?php if (! empty($row['description'])): ?>
+                        <p class="text-xs text-gray-400"><?= esc($row['description']) ?></p>
+                    <?php endif ?>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="hidden" name="<?= esc($key) ?>" value="" form="config-form">
+                    <input type="checkbox" name="<?= esc($key) ?>" value="true" form="config-form"
+                           <?= $row['config_value'] === 'true' ? 'checked' : '' ?>
+                           class="<?= $checkboxClass ?>">
+                </label>
+            </li>
+        <?php endforeach ?>
+    </ul>
+    <div class="px-5 py-4 border-t border-gray-100 flex justify-end">
+        <button type="submit" form="config-form" class="inline-flex items-center gap-x-2 py-2 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition">
+            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9"/>
+            </svg>
+            Enregistrer les modifications
+        </button>
+    </div>
 </div>
 
 <!-- Tableau des clés existantes -->
@@ -28,10 +77,10 @@ $imgSrc = static function (string $path): string {
         <h2 class="text-sm font-semibold text-gray-800">Clés de configuration</h2>
     </div>
 
-    <?php if (empty($config)): ?>
+    <?php if (empty($tableConfig)): ?>
         <p class="px-5 py-8 text-center text-sm text-gray-400">Aucune entrée.</p>
     <?php else: ?>
-        <form action="<?= site_url(admin_url('config/update')) ?>" method="post" enctype="multipart/form-data">
+        <form id="config-form" action="<?= site_url(admin_url('config/update')) ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -46,7 +95,7 @@ $imgSrc = static function (string $path): string {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <?php $currentHook = null; foreach ($config as $row): ?>
+                        <?php $currentHook = null; foreach ($tableConfig as $row): ?>
                             <?php if ($row['config_hook'] !== $currentHook): $currentHook = $row['config_hook']; ?>
                                 <tr class="bg-gray-50">
                                     <td colspan="6" class="px-5 py-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">

@@ -9,8 +9,12 @@ class DashboardController extends BaseController
     protected $helpers = ['url', 'vite'];
 
     // Liste des devis du tiers connecté (cache par user)
-    public function proposals(): string
+    public function proposals(): string|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('propal_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
 
@@ -41,6 +45,10 @@ class DashboardController extends BaseController
     // Téléchargement PDF d'un devis (statuts 1 et 2 uniquement, appartenance vérifiée)
     public function downloadProposal(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('propal_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
         $proposal = $dolibarr->getProposal($id);
@@ -85,8 +93,12 @@ class DashboardController extends BaseController
     }
 
     // Liste des commandes du tiers connecté (cache par user)
-    public function orders(): string
+    public function orders(): string|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('commande_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
         $orders   = [];
@@ -133,6 +145,10 @@ class DashboardController extends BaseController
     // Téléchargement PDF d'une commande (statuts 1, 2 et 3 uniquement, appartenance vérifiée)
     public function downloadOrder(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('commande_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
         $order    = $dolibarr->getOrder($id);
@@ -185,7 +201,7 @@ class DashboardController extends BaseController
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
 
-        if (! cfg('expedition_enabled', false) || ! $dolibarr->hasModule('expedition')) {
+        if (! cfg('commande_enabled', true) || ! cfg('expedition_enabled', false) || ! $dolibarr->hasModule('expedition')) {
             return redirect()->to('dashboard/orders')->with('error', 'Fonctionnalité indisponible.');
         }
 
@@ -238,7 +254,7 @@ class DashboardController extends BaseController
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
 
-        if (! cfg('certificatsclients_enabled', false) || ! $dolibarr->hasModule('certificatsclients')) {
+        if (! cfg('commande_enabled', true) || ! cfg('certificatsclients_enabled', false) || ! $dolibarr->hasModule('certificatsclients')) {
             return redirect()->to('dashboard/orders')->with('error', 'Fonctionnalité indisponible.');
         }
 
@@ -276,8 +292,12 @@ class DashboardController extends BaseController
     }
 
     // Liste des factures du tiers connecté (cache par user)
-    public function invoices(): string
+    public function invoices(): string|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('facture_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
         $invoices = [];
@@ -307,6 +327,10 @@ class DashboardController extends BaseController
     // Téléchargement PDF d'une facture (statuts 1 et 2 uniquement, appartenance vérifiée)
     public function downloadInvoice(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('facture_enabled', true)) {
+            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = session()->get('party_id');
         $invoice  = $dolibarr->getInvoice($id);
@@ -367,9 +391,9 @@ class DashboardController extends BaseController
             if ($cached) {
                 ['invoices' => $invoices, 'proposals' => $proposals, 'orders' => $orders] = $cached;
             } else {
-                $invoices  = $dolibarr->getInvoices($params);
-                $proposals = $dolibarr->getProposals($params);
-                $orders    = $dolibarr->getOrders($params);
+                $invoices  = cfg('facture_enabled', true) ? $dolibarr->getInvoices($params) : [];
+                $proposals = cfg('propal_enabled', true) ? $dolibarr->getProposals($params) : [];
+                $orders    = cfg('commande_enabled', true) ? $dolibarr->getOrders($params) : [];
 
                 $hasError = isset($invoices['error']) || isset($proposals['error']) || isset($orders['error']);
 

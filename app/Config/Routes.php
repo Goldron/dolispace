@@ -42,6 +42,8 @@ $routes->group(admin_url(), ['filter' => 'admin'], static function ($routes) {
     $routes->post('users/(:num)/delete',   'AdminController::deleteUser/$1');
     $routes->post('users/clear',           'AdminController::clearUsers');
     $routes->post('logs/clear',            'AdminController::clearLogs');
+    $routes->post('uploads/clear',         'AdminController::clearUploads');
+    $routes->post('uploads/(:num)/delete', 'AdminController::deleteUploadRecord/$1');
     $routes->get('status',                 'AdminController::status');
     $routes->get('config',                 'ConfigController::index');
     $routes->post('config/update',         'ConfigController::update');

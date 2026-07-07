@@ -82,6 +82,19 @@ class AdminController extends BaseController
                           ->paginate(20, 'logs');
 
         $logPager = $logs->pager;
+
+        $uploadsList = $uploads->select('uploads.*, users.email AS user_email, users.name AS user_name')
+                               ->join('users', 'users.id = uploads.user_id', 'left')
+                               ->orderBy('uploads.created_at', 'DESC')
+                               ->paginate(20, 'uploads');
+
+        $uploadsPager = $uploads->pager;
+
+        foreach ($uploadsList as &$upload) {
+            $upload['file_missing'] = $this->isUploadFileMissing($upload);
+        }
+        unset($upload);
+
         $search   = trim((string) $this->request->getGet('q'));
 
         if ($search !== '') {
@@ -117,7 +130,7 @@ class AdminController extends BaseController
         }
         unset($user);
 
-        return view('admin/index', compact('stats', 'recentLogs', 'logPager', 'userList', 'search'));
+        return view('admin/index', compact('stats', 'recentLogs', 'logPager', 'uploadsList', 'uploadsPager', 'userList', 'search'));
     }
 
     // Supprime un utilisateur (soft delete)
@@ -142,6 +155,67 @@ class AdminController extends BaseController
         model(LogModel::class)->truncate();
 
         return redirect()->to(admin_url())->with('success', 'Le journal d\'activité a été vidé.');
+    }
+
+    // Vide la table des uploads et supprime les fichiers physiques associés
+    public function clearUploads(): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $this->clearDirectory(WRITEPATH . 'uploads');
+
+        model(UploadModel::class)->truncate();
+
+        return redirect()->to(admin_url())->with('success', 'Tous les fichiers uploadés ont été supprimés.');
+    }
+
+    // Supprime une entrée uploads dont le fichier physique n'existe plus (lien mort)
+    public function deleteUploadRecord(int $id): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $upload = model(UploadModel::class)->find($id);
+
+        if (! $upload) {
+            return redirect()->to(admin_url())->with('error', 'Entrée introuvable.');
+        }
+
+        if (! $this->isUploadFileMissing($upload)) {
+            return redirect()->to(admin_url())->with('error', 'Le fichier existe toujours sur le disque, suppression refusée.');
+        }
+
+        model(UploadModel::class)->delete($id, true);
+
+        return redirect()->to(admin_url())->with('success', 'Entrée supprimée.');
+    }
+
+    // Vrai si le fichier physique associé à l'entrée uploads n'existe plus sur le disque
+    private function isUploadFileMissing(array $upload): bool
+    {
+        $relative = $upload['party_folder']
+            . (! empty($upload['ref_folder']) ? '/' . $upload['ref_folder'] : '')
+            . '/' . $upload['stored_name'];
+
+        return ! is_file(WRITEPATH . 'uploads/' . $relative);
+    }
+
+    // Supprime récursivement le contenu d'un dossier (conserve le dossier et index.html)
+    private function clearDirectory(string $dir): void
+    {
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        foreach (scandir($dir) as $item) {
+            if ($item === '.' || $item === '..' || $item === 'index.html') {
+                continue;
+            }
+
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+            if (is_dir($path)) {
+                $this->clearDirectory($path);
+                rmdir($path);
+            } else {
+                unlink($path);
+            }
+        }
     }
 
     // Page de diagnostics : ClamAV, SMTP, API Dolibarr et variables .env
@@ -175,11 +249,21 @@ class AdminController extends BaseController
         $dolibarrInfo  = $statusResult['success'] ?? null;
 
         $endpoints = [
-            'invoices'     => fn() => $api->getInvoices($minParams),
-            'orders'       => fn() => $api->getOrders($minParams),
-            'proposals'    => fn() => $api->getProposals($minParams),
-            'thirdparties' => fn() => $api->getThirdparties($minParams),
+            'thirdparties'   => fn() => $api->getThirdparties($minParams),
+            'setup/modules'  => fn() => $api->getModules(),
         ];
+
+        if (cfg('facture_enabled', true)) {
+            $endpoints['invoices'] = fn() => $api->getInvoices($minParams);
+        }
+
+        if (cfg('commande_enabled', true)) {
+            $endpoints['orders'] = fn() => $api->getOrders($minParams);
+        }
+
+        if (cfg('propal_enabled', true)) {
+            $endpoints['proposals'] = fn() => $api->getProposals($minParams);
+        }
 
         $dolibarr = [];
         foreach ($endpoints as $name => $call) {
@@ -194,6 +278,9 @@ class AdminController extends BaseController
         $dolibarrModules = [
             'certificatsclients' => $api->hasModule('certificatsclients'),
             'expedition'         => $api->hasModule('expedition'),
+            'commande'           => $api->hasModule('commande'),
+            'propal'             => $api->hasModule('propal'),
+            'facture'            => $api->hasModule('facture'),
         ];
 
         return view('admin/status', compact('envVars', 'clamEnabled', 'clamAvailable', 'clamVersion', 'smtpStatus', 'apiUrl', 'dolibarrInfo', 'dolibarr', 'dolibarrModules'));

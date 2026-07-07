@@ -12,6 +12,7 @@ class AuthController extends BaseController
     protected UserModel $users;
     protected LogModel  $logs;
 
+    // Initialise les modèles utilisés par tous les endpoints du contrôleur
     public function initController(
         \CodeIgniter\HTTP\RequestInterface $request,
         \CodeIgniter\HTTP\ResponseInterface $response,
@@ -375,6 +376,7 @@ class AuthController extends BaseController
         return redirect()->to('auth');
     }
 
+    // Vrai si le mot de passe a été défini/renouvelé il y a moins d'un an
     private function hasRecentPassword(array $user): bool
     {
         if (empty($user['password_updated_at'])) {
@@ -384,6 +386,7 @@ class AuthController extends BaseController
         return new \DateTime($user['password_updated_at']) > new \DateTime('-1 year');
     }
 
+    // Envoie l'email contenant le lien de finalisation d'inscription
     private function sendVerificationEmail(string $to, string $token): void
     {
         $link  = site_url('auth/verify/' . $token);

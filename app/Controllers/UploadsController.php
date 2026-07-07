@@ -19,6 +19,7 @@ class UploadsController extends BaseController
         'application/x-sh', 'application/x-perl',
     ];
 
+    // Affiche l'espace de dépôt : fichiers déjà uploadés + devis/commandes pour association
     public function index(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
@@ -29,13 +30,14 @@ class UploadsController extends BaseController
         $api     = new DolibarrApi();
 
         $params    = ['thirdparty_ids' => $partyId, 'limit' => 100, 'sortfield' => 't.rowid', 'sortorder' => 'DESC'];
-        $proposals = $this->filterRefs($api->getProposals($params));
-        $orders    = $this->filterRefs($api->getOrders($params));
+        $proposals = cfg('propal_enabled', true) ? $this->filterRefs($api->getProposals($params)) : [];
+        $orders    = cfg('commande_enabled', true) ? $this->filterRefs($api->getOrders($params)) : [];
         $files     = model(UploadModel::class)->getForParty($partyId);
 
         return view('dashboard/uploads', compact('files', 'proposals', 'orders'));
     }
 
+    // Valide, scanne puis dépose un fichier dans le dossier du tiers (et de la commande si liée)
     public function upload(): \CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
@@ -81,7 +83,9 @@ class UploadsController extends BaseController
 
         $api         = new DolibarrApi();
         $thirdparty  = $api->getThirdparty($partyId);
-        $partyFolder = $this->slugify($thirdparty['code_client'] ?? (string) $partyId);
+        $companyName = isset($thirdparty['error']) ? '' : (string) ($thirdparty['name'] ?? '');
+        $codeClient  = isset($thirdparty['error']) ? '' : preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($thirdparty['code_client'] ?? ''));
+        $partyFolder = ($companyName !== '' ? $this->slugify($companyName) . '_' : '') . ($codeClient !== '' ? $codeClient : $partyId);
 
         // Association devis / commande
         $refType   = '';
@@ -93,7 +97,10 @@ class UploadsController extends BaseController
             [$refType, $refIdStr] = array_pad(explode(':', $rawRef, 2), 2, '0');
             $refId = (int) $refIdStr;
 
-            if ($refId > 0 && in_array($refType, ['proposal', 'order'], true)) {
+            $refTypeEnabled = ($refType === 'proposal' && cfg('propal_enabled', true))
+                || ($refType === 'order' && cfg('commande_enabled', true));
+
+            if ($refId > 0 && $refTypeEnabled) {
                 $record = $refType === 'proposal' ? $api->getProposal($refId) : $api->getOrder($refId);
                 if (! isset($record['error']) && ! empty($record['ref'])) {
                     $refFolder = $this->slugify($record['ref']);
@@ -134,6 +141,7 @@ class UploadsController extends BaseController
         return redirect()->to('dashboard/uploads')->with('success', 'Fichier envoyé avec succès.');
     }
 
+    // Télécharge un fichier uploadé (appartenance vérifiée par utilisateur)
     public function download(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
@@ -168,6 +176,7 @@ class UploadsController extends BaseController
             ->setBody(file_get_contents($path));
     }
 
+    // Supprime un fichier uploadé, en base et sur le disque (appartenance vérifiée)
     public function delete(int $id): \CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
@@ -213,6 +222,7 @@ class UploadsController extends BaseController
         return str_starts_with($path, $base . DIRECTORY_SEPARATOR) ? $path : null;
     }
 
+    // Retire les caractères pouvant casser l'en-tête Content-Disposition
     private function safeFilename(string $name): string
     {
         return str_replace(['"', "\r", "\n", "\0"], '', $name);
@@ -236,6 +246,7 @@ class UploadsController extends BaseController
         });
     }
 
+    // Génère un suffixe aléatoire pour éviter les collisions de noms de fichiers
     private function randomToken(int $length): string
     {
         $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -247,6 +258,7 @@ class UploadsController extends BaseController
         return $token;
     }
 
+    // Convertit un texte en identifiant de dossier/fichier sûr (accents, minuscules, tirets)
     private function slugify(string $name): string
     {
         $map = [

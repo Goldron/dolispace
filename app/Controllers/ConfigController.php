@@ -2,12 +2,23 @@
 
 namespace App\Controllers;
 
+use App\Libraries\DolibarrApi;
 use App\Models\ConfigModel;
 
 class ConfigController extends BaseController
 {
     protected $helpers = ['url', 'vite', 'settings'];
 
+    // Clé de config => module Dolibarr requis, pour la carte "Fonctionnalités"
+    private const FEATURE_MODULES = [
+        'expedition_enabled'         => 'expedition',
+        'certificatsclients_enabled' => 'certificatsclients',
+        'commande_enabled'           => 'commande',
+        'propal_enabled'             => 'propal',
+        'facture_enabled'            => 'facture',
+    ];
+
+    // Affiche la liste des clés de configuration, triées par hook/position/clé
     public function index(): string
     {
         $config = model(ConfigModel::class)
@@ -16,9 +27,20 @@ class ConfigController extends BaseController
             ->orderBy('config_key', 'ASC')
             ->findAll();
 
-        return view('admin/config', ['config' => $config]);
+        $dolibarr = new DolibarrApi();
+        $featureModulesAvailable = [];
+
+        foreach (self::FEATURE_MODULES as $key => $moduleName) {
+            $featureModulesAvailable[$key] = $dolibarr->hasModule($moduleName);
+        }
+
+        return view('admin/config', [
+            'config'                   => $config,
+            'featureModulesAvailable'  => $featureModulesAvailable,
+        ]);
     }
 
+    // Met à jour toutes les clés de configuration en une seule soumission (valeurs, hooks, images)
     public function update(): \CodeIgniter\HTTP\RedirectResponse
     {
         $model     = model(ConfigModel::class);
@@ -83,6 +105,7 @@ class ConfigController extends BaseController
         return redirect()->to(admin_url('config'))->with('success', 'Configuration mise à jour.');
     }
 
+    // Ajoute une nouvelle clé de configuration
     public function store(): \CodeIgniter\HTTP\RedirectResponse
     {
         $key   = trim($this->request->getPost('config_key') ?? '');
@@ -99,6 +122,7 @@ class ConfigController extends BaseController
         return redirect()->to(admin_url('config'))->with('success', "Clé « {$key} » ajoutée.");
     }
 
+    // Supprime une clé de configuration (refusé si elle est protégée)
     public function delete(int $id): \CodeIgniter\HTTP\RedirectResponse
     {
         $row = model(ConfigModel::class)->find($id);
@@ -112,6 +136,7 @@ class ConfigController extends BaseController
         return redirect()->to(admin_url('config'))->with('success', 'Entrée supprimée.');
     }
 
+    // Envoie un email de test avec la configuration SMTP actuelle
     public function testEmail(): \CodeIgniter\HTTP\RedirectResponse
     {
         $to = trim($this->request->getPost('test_email_to') ?? '');
@@ -132,6 +157,7 @@ class ConfigController extends BaseController
         return redirect()->to(admin_url('config'))->with('success', "Email de test envoyé à {$to}.");
     }
 
+    // Traite l'upload d'une image de config : valide, déplace, redimensionne si besoin
     private function handleImageUpload(string $inputName, string $basename): string|false|null
     {
         $file = $this->request->getFile($inputName);

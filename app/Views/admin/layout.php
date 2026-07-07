@@ -28,9 +28,26 @@
                         </a>
                     <?php endforeach ?>
                 </nav>
-                <div class="flex items-center gap-x-4">
-                    <span class="text-sm text-gray-500"><?= esc((string) session()->get('admin_login')) ?></span>
-                    <a href="<?= site_url(admin_url('logout')) ?>" class="text-sm text-red-600 hover:underline">Déconnexion</a>
+                <div class="hs-dropdown relative inline-flex">
+                    <?php $adminLogin = (string) session()->get('admin_login'); ?>
+                    <button type="button" class="hs-dropdown-toggle inline-flex items-center gap-x-2 py-1.5 px-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">
+                        <span class="flex items-center justify-center size-7 rounded-full bg-gray-800 text-white text-xs font-semibold uppercase">
+                            <?= esc(mb_substr($adminLogin, 0, 1)) ?>
+                        </span>
+                        <span class="font-medium text-gray-700"><?= esc($adminLogin) ?></span>
+                        <svg class="hs-dropdown-open:rotate-180 size-3.5 text-gray-400 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                        </svg>
+                    </button>
+
+                    <div class="hs-dropdown-menu hs-dropdown-open:opacity-100 transition-[opacity,margin] duration-150 opacity-0 hidden min-w-40 bg-white shadow-md rounded-xl border border-gray-200 p-1 mt-2 inset-e-0 z-10">
+                        <a href="<?= site_url(admin_url('logout')) ?>" class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition">
+                            <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/>
+                            </svg>
+                            Déconnexion
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>

@@ -9,6 +9,7 @@ class AccountController extends BaseController
 {
     protected $helpers = ['url', 'vite'];
 
+    // Affiche la page de compte, annule les changements d'email/mot de passe expirés
     public function index(): string
     {
         $users  = model(UserModel::class);
@@ -31,6 +32,7 @@ class AccountController extends BaseController
         return view('dashboard/account', ['user' => $user]);
     }
 
+    // Met à jour l'identité, et déclenche les liens de confirmation pour email/mot de passe
     public function updateProfile(): \CodeIgniter\HTTP\RedirectResponse
     {
         $users    = model(UserModel::class);
@@ -92,6 +94,7 @@ class AccountController extends BaseController
         return redirect()->to('dashboard/account')->with('success', 'Profil mis à jour.');
     }
 
+    // Valide le lien reçu par email et applique le changement d'adresse
     public function confirmEmail(string $token): \CodeIgniter\HTTP\RedirectResponse
     {
         $users  = model(UserModel::class);
@@ -119,6 +122,7 @@ class AccountController extends BaseController
         return redirect()->to('dashboard/account')->with('success', 'Votre adresse email a été mise à jour.');
     }
 
+    // Valide le lien reçu par email et applique le changement de mot de passe
     public function confirmPassword(string $token): \CodeIgniter\HTTP\RedirectResponse
     {
         $users  = model(UserModel::class);
@@ -144,18 +148,21 @@ class AccountController extends BaseController
         return redirect()->to('dashboard/account')->with('success', 'Votre mot de passe a été mis à jour.');
     }
 
+    // Annule une demande de changement d'email en attente
     public function cancelEmail(): \CodeIgniter\HTTP\RedirectResponse
     {
         model(UserModel::class)->cancelEmailChange((int) session()->get('user_id'));
         return redirect()->to('dashboard/account')->with('success', 'Modification annulée.');
     }
 
+    // Annule une demande de changement de mot de passe en attente
     public function cancelPassword(): \CodeIgniter\HTTP\RedirectResponse
     {
         model(UserModel::class)->cancelPasswordChange((int) session()->get('user_id'));
         return redirect()->to('dashboard/account')->with('success', 'Modification annulée.');
     }
 
+    // Envoie l'email contenant le lien de confirmation de changement d'adresse
     private function sendEmailConfirmLink(string $to, string $token, string $logo): void
     {
         $confirmUrl = base_url('dashboard/account/confirm-email/' . $token);
@@ -170,6 +177,7 @@ class AccountController extends BaseController
         $email->send();
     }
 
+    // Envoie l'email contenant le lien de confirmation de changement de mot de passe
     private function sendPasswordConfirmLink(string $to, string $token, string $logo): void
     {
         $confirmUrl = base_url('dashboard/account/confirm-password/' . $token);
