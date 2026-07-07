@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($title ?? 'Espace client') ?></title>
-    <link rel="icon" type="image/png" href="/images/favicon-96x96.png?v=<?= filemtime(FCPATH . 'images/favicon-96x96.png') ?>" sizes="96x96">
-    <link rel="shortcut icon" href="/images/favicon.ico?v=<?= filemtime(FCPATH . 'images/favicon.ico') ?>">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=<?= filemtime(FCPATH . 'images/apple-touch-icon.png') ?>">
+    <link rel="icon" type="image/png" href="<?= asset_or_default('favicon-96x96.png') ?>" sizes="96x96">
+    <link rel="shortcut icon" href="<?= asset_or_default('favicon.ico') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= asset_or_default('apple-touch-icon.png') ?>">
     <link rel="manifest" href="/site.webmanifest">
 
     <?= vite('resources/js/app.js') ?>
@@ -19,7 +19,7 @@
 
             <!-- Logo -->
             <a href="<?= site_url('dashboard') ?>" class="flex-none">
-                <img src="<?= base_url(versioned_asset(cfg('logo_url', '/images/logo.svg'))) ?>" alt="Logo" class="h-8 w-auto">
+                <img src="<?= base_url(versioned_asset(cfg_url('logo_url', '/images/default/logo.svg'))) ?>" alt="Logo" class="h-8 w-auto">
             </a>
 
             <!-- Menu utilisateur (droite) -->

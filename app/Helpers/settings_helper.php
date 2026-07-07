@@ -36,6 +36,20 @@ if (! function_exists('cfg')) {
     }
 }
 
+if (! function_exists('cfg_url')) {
+    /**
+     * Comme cfg(), mais traite une valeur vide ('') comme absente et retombe
+     * sur $default — utile pour logo_url/background_url/label_url après un
+     * "Vider" en admin, où config_value existe en base mais est vide.
+     */
+    function cfg_url(string $key, string $default = ''): string
+    {
+        $value = (string) cfg($key, '');
+
+        return $value !== '' ? $value : $default;
+    }
+}
+
 if (! function_exists('versioned_asset')) {
     /**
      * Ajoute ?v=filemtime à un chemin d'asset public pour invalider le cache navigateur
@@ -50,6 +64,22 @@ if (! function_exists('versioned_asset')) {
         $abs = FCPATH . ltrim($path, '/');
 
         return $path . (is_file($abs) ? '?v=' . filemtime($abs) : '');
+    }
+}
+
+if (! function_exists('asset_or_default')) {
+    /**
+     * Résout un asset à nom fixe (icônes, favicon…) : utilise la version personnalisée
+     * dans public/images/ si elle existe (régénérée via admin/config), sinon retombe
+     * sur l'original de l'application dans public/images/default/.
+     */
+    function asset_or_default(string $filename): string
+    {
+        $custom = FCPATH . 'images/' . $filename;
+
+        return is_file($custom)
+            ? versioned_asset('/images/' . $filename)
+            : versioned_asset('/images/default/' . $filename);
     }
 }
 
@@ -75,7 +105,7 @@ if (! function_exists('image_to_base64')) {
 if (! function_exists('logo_for_email')) {
     function logo_for_email(): string
     {
-        return image_to_base64(FCPATH . ltrim(cfg('logo_url', ''), '/')) ?: '';
+        return image_to_base64(FCPATH . ltrim(cfg_url('logo_url', '/images/default/logo.svg'), '/')) ?: '';
     }
 }
 

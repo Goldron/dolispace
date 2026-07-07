@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration — <?= esc((string) cfg('company_name')) ?></title>
-    <link rel="icon" type="image/png" href="/images/favicon-96x96.png?v=<?= filemtime(FCPATH . 'images/favicon-96x96.png') ?>" sizes="96x96">
-    <link rel="shortcut icon" href="/images/favicon.ico?v=<?= filemtime(FCPATH . 'images/favicon.ico') ?>">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=<?= filemtime(FCPATH . 'images/apple-touch-icon.png') ?>">
+    <link rel="icon" type="image/png" href="<?= asset_or_default('favicon-96x96.png') ?>" sizes="96x96">
+    <link rel="shortcut icon" href="<?= asset_or_default('favicon.ico') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= asset_or_default('apple-touch-icon.png') ?>">
     <link rel="manifest" href="/site.webmanifest">
     <?= vite('resources/js/app.js') ?>
 </head>
@@ -15,7 +15,7 @@
     <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
         <nav class="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16">
             <div class="flex items-center gap-x-3">
-                <img src="<?= base_url(versioned_asset(cfg('logo_url', '/images/logo.svg'))) ?>" alt="Logo" class="h-7 w-auto">
+                <img src="<?= base_url(versioned_asset(cfg_url('logo_url', '/images/default/logo.svg'))) ?>" alt="Logo" class="h-7 w-auto">
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Admin</span>
             </div>
             <div class="flex items-center gap-x-6">

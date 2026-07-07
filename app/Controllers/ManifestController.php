@@ -9,21 +9,18 @@ class ManifestController extends BaseController
     {
         $name = (string) cfg('company_name', 'DoliSpace');
 
-        $icon192 = FCPATH . 'images/web-app-manifest-192x192.png';
-        $icon512 = FCPATH . 'images/web-app-manifest-512x512.png';
-
         $manifest = [
             'name'             => $name,
             'short_name'       => mb_strlen($name) > 12 ? mb_substr($name, 0, 12) : $name,
             'icons'            => [
                 [
-                    'src'     => '/images/web-app-manifest-192x192.png?v=' . filemtime($icon192),
+                    'src'     => asset_or_default('web-app-manifest-192x192.png'),
                     'sizes'   => '192x192',
                     'type'    => 'image/png',
                     'purpose' => 'maskable',
                 ],
                 [
-                    'src'     => '/images/web-app-manifest-512x512.png?v=' . filemtime($icon512),
+                    'src'     => asset_or_default('web-app-manifest-512x512.png'),
                     'sizes'   => '512x512',
                     'type'    => 'image/png',
                     'purpose' => 'maskable',

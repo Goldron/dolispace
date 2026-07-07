@@ -58,8 +58,15 @@ class ConfigController extends BaseController
         $config    = $model->findAll();
         $overrides = [];
 
-        foreach (['logo_url' => 'logo', 'background_url' => 'background', 'label_url' => 'label'] as $configKey => $basename) {
-            $result = $this->handleImageUpload($configKey . '_file', $basename);
+        // logo/background : nom unique par upload (jamais écrasés) — label : comportement inchangé
+        $imageKeys = [
+            'logo_url'       => ['logo', true],
+            'background_url' => ['background', true],
+            'label_url'      => ['label', false],
+        ];
+
+        foreach ($imageKeys as $configKey => [$basename, $unique]) {
+            $result = $this->handleImageUpload($configKey . '_file', $basename, $unique);
             if ($result === false) {
                 $file = $this->request->getFile($configKey . '_file');
                 $phpCode = $file ? $file->getError() : UPLOAD_ERR_NO_FILE;
@@ -253,8 +260,9 @@ class ConfigController extends BaseController
         return redirect()->to(admin_url('config'))->with('success', "Email de test envoyé à {$to}.");
     }
 
-    // Traite l'upload d'une image de config : valide, déplace, redimensionne si besoin
-    private function handleImageUpload(string $inputName, string $basename): string|false|null
+    // Traite l'upload d'une image de config : valide, déplace, redimensionne si besoin.
+    // $unique = true : nom de fichier unique par upload, l'ancien fichier n'est jamais touché.
+    private function handleImageUpload(string $inputName, string $basename, bool $unique = false): string|false|null
     {
         $file = $this->request->getFile($inputName);
 
@@ -279,9 +287,11 @@ class ConfigController extends BaseController
             return false;
         }
 
-        $filename = $basename . '.' . $file->getExtension();
-        $dest     = FCPATH . 'images';
-        $file->move($dest, $filename, true);
+        $filename = $unique
+            ? $basename . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(3)) . '.' . $file->getExtension()
+            : $basename . '.' . $file->getExtension();
+        $dest = FCPATH . 'images';
+        $file->move($dest, $filename, ! $unique);
 
         // Redimensionne si largeur > 2000 px (SVG ignoré — format vectoriel)
         if ($mime !== 'image/svg+xml') {

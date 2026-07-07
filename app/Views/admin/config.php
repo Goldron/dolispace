@@ -111,7 +111,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                     <td class="px-5 py-3 align-middle">
                                         <div class="flex items-center gap-x-4">
                                             <div class="w-1/2 flex items-center justify-center h-14 rounded border border-gray-200 bg-gray-50">
-                                                <img src="<?= $imgSrc('/images/web-app-manifest-512x512.png') ?>" alt="Icône actuelle"
+                                                <img src="<?= esc(asset_or_default('web-app-manifest-512x512.png')) ?>" alt="Icône actuelle"
                                                      class="max-h-12 max-w-full object-contain">
                                             </div>
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
@@ -166,9 +166,9 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                         <input type="hidden" name="logo_url" value="<?= esc($row['config_value'] ?? '') ?>">
                                         <div class="flex items-center gap-x-4">
                                             <div class="w-1/2 flex items-center justify-center h-14 rounded border border-gray-200 bg-gray-50">
-                                                <img src="<?= $imgSrc($row['config_value'] ?? '') ?>" alt="Logo"
+                                                <img src="<?= $imgSrc($row['config_value'] ?: '/images/default/logo.svg') ?>" alt="Logo"
                                                      id="preview-logo_url"
-                                                     class="max-h-12 max-w-full object-contain<?= empty($row['config_value']) ? ' hidden' : '' ?>">
+                                                     class="max-h-12 max-w-full object-contain">
                                             </div>
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
@@ -214,9 +214,9 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                         <input type="hidden" name="background_url" value="<?= esc($row['config_value'] ?? '') ?>">
                                         <div class="flex items-center gap-x-4">
                                             <div class="w-1/2 h-14 rounded border border-gray-200 overflow-hidden bg-gray-50">
-                                                <img src="<?= $imgSrc($row['config_value'] ?? '') ?>" alt="Fond"
+                                                <img src="<?= $imgSrc($row['config_value'] ?: '/images/default/background.jpg') ?>" alt="Fond"
                                                      id="preview-background_url"
-                                                     class="w-full h-full object-cover<?= empty($row['config_value']) ? ' hidden' : '' ?>">
+                                                     class="w-full h-full object-cover">
                                             </div>
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
