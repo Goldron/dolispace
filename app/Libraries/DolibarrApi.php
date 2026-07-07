@@ -375,7 +375,8 @@ class DolibarrApi
             if ($status >= 400) {
                 $raw     = $decoded['error'] ?? $decoded['message'] ?? "Erreur HTTP {$status}";
                 $message = is_array($raw) ? json_encode($raw, JSON_UNESCAPED_UNICODE) : (string)$raw;
-                log_message('error', "[DolibarrApi] {$method} {$endpoint} → {$status} : {$message}");
+                // 404 = ressource liée absente (cas normal, ex: commande sans expédition) : pas une vraie erreur
+                log_message($status === 404 ? 'info' : 'error', "[DolibarrApi] {$method} {$endpoint} → {$status} : {$message}");
                 return ['error' => $message, 'status' => $status];
             }
 

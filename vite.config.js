@@ -1,5 +1,21 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Lit app.baseURL depuis le .env (non versionné) pour éviter de coder le domaine en dur ici
+function getHmrHost() {
+    try {
+        const env   = fs.readFileSync(path.resolve(__dirname, '.env'), 'utf-8')
+        const match = env.match(/^app\.baseURL\s*=\s*['"]?https?:\/\/([^'"/\s]+)/m)
+        return match ? match[1] : 'localhost'
+    } catch {
+        return 'localhost'
+    }
+}
 
 export default defineConfig({
     plugins: [
@@ -25,7 +41,7 @@ export default defineConfig({
         cors: true,
         hmr: {
             protocol: 'ws',
-            host: 'client.goldron.fr',
+            host: getHmrHost(),
             port: 5173,
         },
     },
