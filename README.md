@@ -15,9 +15,14 @@ certificats et factures depuis une intégration avec l'API REST de [Dolibarr](ht
 - Connexion sans mot de passe pour les nouveaux comptes (vérification email + rattachement à un tiers Dolibarr)
 - Connexion par mot de passe + OTP pour les comptes existants
 - Consultation des devis, commandes, expéditions, certificats et factures avec téléchargement PDF
+- Devis, commandes, factures, expéditions et certificats activables/désactivables individuellement
+  (`admin/config` → carte "Fonctionnalités"), masqués automatiquement si le module Dolibarr correspondant
+  n'est pas détecté
 - Espace de dépôt de fichiers (uploads)
 - Gestion du compte (email, mot de passe, coordonnées, numéro de TVA via VIES)
-- Interface d'administration : configuration de l'application, gestion des utilisateurs, journaux d'activité, test d'envoi SMTP
+- Interface d'administration : configuration de l'application, gestion des utilisateurs (recherche,
+  suppression, purge), journaux d'activité, fichiers uploadés, diagnostics API Dolibarr (`admin/status`),
+  test d'envoi SMTP
 
 ## Prérequis
 
@@ -45,6 +50,13 @@ npm run build
 ```bash
 php spark serve
 npm run dev
+```
+
+## Tests
+
+```bash
+composer install
+vendor/bin/phpunit
 ```
 
 ## Déploiement

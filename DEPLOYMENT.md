@@ -48,6 +48,9 @@ npm install
 npm run build
 ```
 
+`--no-dev` exclut PHPUnit et les autres dépendances de test, inutiles en production.
+Pour lancer les tests (en local ou en CI, avant déploiement) : `composer install` (sans `--no-dev`) puis `vendor/bin/phpunit`.
+
 ## 4. Configuration
 
 ```bash
@@ -72,6 +75,11 @@ php spark db:seed DatabaseSeeder
 
 Puis se connecter à `/admin/config` pour renseigner les valeurs sensibles laissées vides par le seeder
 (`dolibarr_api_token`, `smtp_user`, `smtp_pass`, `dolibarr_api_url` si différent).
+
+Le seeder active aussi par défaut les toggles de fonctionnalités (`commande_enabled`, `propal_enabled`,
+`facture_enabled`, `expedition_enabled`, `certificatsclients_enabled`) — à ajuster dans la carte
+"Fonctionnalités" de `admin/config` selon les modules réellement activés côté Dolibarr (vérifiables sur
+`admin/status`).
 
 ## 6. Nginx
 
