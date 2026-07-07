@@ -62,8 +62,8 @@ $shipmentStatusLabels = [
             $shipments    = array_filter($o['shipments'] ?? [], fn($s) => (int)($s['statut'] ?? 0) !== 0);
             ?>
             <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-x-2">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-x-2 gap-y-1.5 flex-wrap">
                         <span class="text-sm font-medium text-gray-900">
                             <?= esc((string)($o['ref'] ?? '')) ?>
                             <?php if (! empty($o['ref_client'])): ?>
@@ -162,21 +162,19 @@ $shipmentStatusLabels = [
                             ?>
                             <div class="rounded-lg border border-gray-100 p-3 text-xs space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-x-1.5">
-                                        <span class="font-medium text-gray-700"><?= esc($shipRef) ?></span>
-                                        <a href="<?= site_url('dashboard/orders/shipments/' . $shipment['id'] . '/download') ?>"
-                                           title="Télécharger le PDF : <?= esc($shipDocLabel) ?>"
-                                           class="inline-flex items-center gap-x-1 pl-1 pr-2 py-0.5 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
-                                            <svg class="size-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-                                            </svg>
-                                            <span class="text-xs truncate max-w-40"><?= esc($shipDocLabel) ?></span>
-                                        </a>
-                                    </div>
+                                    <span class="font-medium text-gray-700"><?= esc($shipRef) ?></span>
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <?= $shipStatus['class'] ?>">
                                         <?= $shipStatus['label'] ?>
                                     </span>
                                 </div>
+                                <a href="<?= site_url('dashboard/orders/shipments/' . $shipment['id'] . '/download') ?>"
+                                   title="Télécharger le PDF : <?= esc($shipDocLabel) ?>"
+                                   class="inline-flex items-center gap-x-1 pl-1 pr-2 py-0.5 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
+                                    <svg class="size-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                                    </svg>
+                                    <span class="text-xs truncate max-w-40"><?= esc($shipDocLabel) ?></span>
+                                </a>
                                 <div class="grid grid-cols-2 gap-y-1 gap-x-3 text-gray-500">
                                     <span>Date : <span class="text-gray-700"><?= $shipDate ?></span></span>
                                     <span>Date d'expédition : <span class="text-gray-700"><?= $shipExpedDate ?></span></span>

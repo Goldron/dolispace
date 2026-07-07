@@ -71,7 +71,12 @@ class DashboardController extends BaseController
             return redirect()->to('dashboard/proposals')->with('error', 'Aucun document PDF disponible.');
         }
 
-        $result = $dolibarr->downloadDocument('propale', $originalFile);
+        // modulepart API = 'propal' (sans e), alors que le dossier de stockage Dolibarr est 'propale/'
+        $result = $dolibarr->downloadDocument('propal', $originalFile);
+
+        if ((isset($result['error']) || empty($result['content'])) && cfg('rebuild_pdf_on_failure', false)) {
+            $result = $dolibarr->buildDocument('propal', $originalFile);
+        }
 
         if (isset($result['error']) || empty($result['content'])) {
             return redirect()->to('dashboard/proposals')->with('error', 'Impossible de télécharger le document.');
@@ -354,6 +359,10 @@ class DashboardController extends BaseController
         }
 
         $result = $dolibarr->downloadDocument('facture', $originalFile);
+
+        if ((isset($result['error']) || empty($result['content'])) && cfg('rebuild_pdf_on_failure', false)) {
+            $result = $dolibarr->buildDocument('facture', $originalFile);
+        }
 
         if (isset($result['error']) || empty($result['content'])) {
             return redirect()->to('dashboard/invoices')->with('error', 'Impossible de télécharger le document.');

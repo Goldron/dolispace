@@ -50,8 +50,8 @@ $statusLabels = [
             $hasDoc      = $isEnCours && ! empty($p['last_main_doc']);
             ?>
             <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-x-2">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-x-2 gap-y-1.5 flex-wrap">
                         <span class="text-sm font-medium text-gray-900"><?= esc((string)($p['ref'] ?? '')) ?></span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $status['class'] ?>">
                             <?= $status['label'] ?>
