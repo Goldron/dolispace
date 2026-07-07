@@ -1,36 +1,33 @@
 # Dolispace
 
-Espace client web permettant aux clients de consulter leurs devis, commandes, expéditions,
-certificats et factures depuis une intégration avec l'API REST de [Dolibarr](https://www.dolibarr.org).
+A modern web customer portal allowing customers to view their quotes, orders, shipments, and invoices through an integration with the [Dolibarr](https://www.dolibarr.org) REST API.
 
-Le logiciel gère ses propres comptes utilisateurs (aucun compte à créer ou gérer côté Dolibarr),
-n'expose jamais Dolibarr directement à Internet — seule cette application dialogue avec son API,
-en interne — et peut être installé sur un serveur distinct de celui de Dolibarr.
+The application manages its own user accounts: no account needs to be created or administered in Dolibarr. It never exposes Dolibarr directly and communicates exclusively through its REST API.
 
-## Stack technique
+It can also be deployed on a server independent from the one hosting Dolibarr, providing better separation, security, and installation flexibility.
+
+## Technical Stack
 
 - [CodeIgniter 4](https://codeigniter.com) (PHP)
-- SQLite (base locale — utilisateurs, logs, fichiers, configuration)
+- SQLite (local database — users, logs, files, configuration)
 - [Vite](https://vitejs.dev) + [Tailwind CSS v4](https://tailwindcss.com) + [Preline UI](https://preline.co)
-- API REST Dolibarr pour les données métier (tiers, commandes, factures, expéditions)
+- Dolibarr REST API for business data (third parties, orders, invoices, shipments)
 
-## Fonctionnalités
+## Features
 
-- Connexion sans mot de passe pour les nouveaux comptes (vérification email + rattachement à un tiers Dolibarr)
-- Connexion par mot de passe + OTP pour les comptes existants
-- Consultation des devis, commandes, expéditions, certificats et factures avec téléchargement PDF
-- Devis, commandes, factures, expéditions et certificats activables/désactivables individuellement
-  (`admin/config` → carte "Fonctionnalités"), masqués automatiquement si le module Dolibarr correspondant
-  n'est pas détecté
-- Espace de dépôt de fichiers (uploads)
-- Gestion du compte (email, mot de passe, coordonnées, TVA intracommunautaire via VIES)
-- Interface d'administration : configuration de l'application, gestion des utilisateurs (recherche,
-  suppression, purge), journaux d'activité, fichiers uploadés, diagnostics API Dolibarr (`admin/status`),
-  test d'envoi SMTP
+- Passwordless login for new accounts (email verification + linking to a Dolibarr third party)
+- Password + OTP login for existing accounts
+- View quotes, orders, shipments, certificates, and invoices with PDF download
+- Quotes, orders, invoices, shipments, and certificates can be individually enabled/disabled  
+  (`admin/config` → "Features" card), automatically hidden if the corresponding Dolibarr module  
+  is not detected
+- File upload area
+- Account management (email, password, contact details, intra-community VAT number verification via VIES)
+- Administration interface: application configuration, user management (search, deletion), activity logs, uploaded files, Dolibarr API diagnostics, SMTP sending test, etc.
 
-## Prérequis
+## Requirements
 
-- PHP 8.2+ avec les extensions : `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
+- PHP 8.2+ with extensions: `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
 - Node.js + npm
 
 ## Installation
@@ -41,7 +38,7 @@ npm install
 cp env .env
 ```
 
-Configurer `.env` : base URL, connexion à la base SQLite, identifiants admin.
+Edit `.env`: base URL, SQLite database connection, admin credentials.
 
 ```bash
 php spark migrate --all
@@ -49,7 +46,7 @@ php spark db:seed DatabaseSeeder
 npm run build
 ```
 
-## Développement
+## Development
 
 ```bash
 php spark serve
@@ -63,6 +60,6 @@ composer install
 vendor/bin/phpunit
 ```
 
-## Déploiement
+## Deployment
 
-Voir [DEPLOYMENT.md](DEPLOYMENT.md).
+See [DEPLOYMENT.md](DEPLOYMENT.md).

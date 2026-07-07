@@ -1,25 +1,28 @@
-# Déploiement sur un nouveau serveur
+# Deployment on a New Server
 
-## Prérequis serveur
+## Server Requirements
 
-- PHP 8.2+ avec extensions : `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
+- PHP 8.2+ with extensions: `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
 - Composer
-- Node.js + npm (pour le build Vite)
+- Node.js + npm (for the Vite build)
 - Nginx + PHP-FPM
-- Certificat SSL (Let's Encrypt / certbot)
+- SSL certificate (Let's Encrypt / certbot)
 
-## 1. Accès au dépôt privé
+## 1. Access to the Private Repository
 
-Le dépôt `Goldron/dolispace` est privé. Deux options :
+The `Goldron/dolispace` repository is private. Two options are available:
 
-**Option A — Deploy key (recommandé, lecture seule)**
+**Option A — Deploy key (recommended, read-only)**
+
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/dolispace_deploy -N ""
 cat ~/.ssh/dolispace_deploy.pub
 ```
-Ajouter cette clé publique dans GitHub → repo `dolispace` → Settings → Deploy keys → Add deploy key (sans droit d'écriture).
 
-Puis dans `~/.ssh/config` sur le nouveau serveur :
+Add this public key to GitHub → repository `dolispace` → Settings → Deploy keys → Add deploy key (without write access).
+
+Then, on the new server, add the following to `~/.ssh/config`:
+
 ```
 Host github-dolispace
     HostName github.com
@@ -27,20 +30,21 @@ Host github-dolispace
     IdentityFile ~/.ssh/dolispace_deploy
 ```
 
-**Option B — Compte gh authentifié** (si tu as déjà `gh auth login` sur ce serveur)
+**Option B — Authenticated gh account** (if you already ran `gh auth login` on this server)
+
 ```bash
 gh repo clone Goldron/dolispace
 ```
 
-## 2. Cloner le projet
+## 2. Clone the Project
 
 ```bash
 git clone github-dolispace:Goldron/dolispace.git client
-# ou : git clone git@github.com:Goldron/dolispace.git client
+# or: git clone git@github.com:Goldron/dolispace.git client
 cd client
 ```
 
-## 3. Dépendances
+## 3. Dependencies
 
 ```bash
 composer install --no-dev --optimize-autoloader
@@ -48,8 +52,13 @@ npm install
 npm run build
 ```
 
-`--no-dev` exclut PHPUnit et les autres dépendances de test, inutiles en production.
-Pour lancer les tests (en local ou en CI, avant déploiement) : `composer install` (sans `--no-dev`) puis `vendor/bin/phpunit`.
+`--no-dev` excludes PHPUnit and other test dependencies, which are not required in production.
+
+To run tests (locally or in CI before deployment): run `composer install` (without `--no-dev`) then:
+
+```bash
+vendor/bin/phpunit
+```
 
 ## 4. Configuration
 
@@ -57,15 +66,16 @@ Pour lancer les tests (en local ou en CI, avant déploiement) : `composer instal
 cp env .env
 ```
 
-Éditer `.env` :
+Edit `.env`:
+
 - `CI_ENVIRONMENT = production`
-- `app.baseURL` → domaine du nouveau serveur
+- `app.baseURL` → domain name of the new server
 - `app.admin_login` / `app.admin_password`
 - `database.default.DBDriver = SQLite3`
 - `database.default.database = database.db`
 - `database.default.DBPrefix = coop_`
 
-## 5. Base de données et permissions
+## 5. Database and Permissions
 
 ```bash
 chmod -R 775 writable
@@ -73,23 +83,25 @@ php spark migrate --all
 php spark db:seed DatabaseSeeder
 ```
 
-Puis se connecter à `/admin/config` pour renseigner les valeurs sensibles laissées vides par le seeder
-(`dolibarr_api_token`, `smtp_user`, `smtp_pass`, `dolibarr_api_url` si différent).
+Then log in to `/admin/config` to fill in the sensitive values left empty by the seeder:
 
-Le seeder active aussi par défaut les toggles de fonctionnalités (`commande_enabled`, `propal_enabled`,
-`facture_enabled`, `expedition_enabled`, `certificatsclients_enabled`) — à ajuster dans la carte
-"Fonctionnalités" de `admin/config` selon les modules réellement activés côté Dolibarr (vérifiables sur
-`admin/status`).
+(`dolibarr_api_token`, `smtp_user`, `smtp_pass`, `dolibarr_api_url` if different).
+
+The seeder also enables the feature toggles by default:
+
+(`commande_enabled`, `propal_enabled`, `facture_enabled`, `expedition_enabled`, `certificatsclients_enabled`)
+
+Adjust them in the **"Features"** section of `admin/config` according to the modules actually enabled on the Dolibarr side (checkable in `admin/status`).
 
 ## 6. Nginx
 
-Adapter le vhost existant (`/etc/nginx/sites-available/client.goldron.fr`) :
+Adapt the existing vhost (`/etc/nginx/sites-available/client.goldron.fr`):
 
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name NOUVEAU_DOMAINE;
-    root /chemin/vers/client/public;
+    server_name NEW_DOMAIN;
+    root /path/to/client/public;
 
     client_max_body_size 20M;
 
@@ -115,17 +127,17 @@ server {
     location ~ /\.ht { deny all; }
     location ~ ^/(application|system|tests|writable|vendor)/ { return 403; }
 
-    ssl_certificate /etc/letsencrypt/live/NOUVEAU_DOMAINE/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/NOUVEAU_DOMAINE/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/NEW_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/NEW_DOMAIN/privkey.pem;
 }
 ```
 
 ```bash
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d NOUVEAU_DOMAINE
+sudo certbot --nginx -d NEW_DOMAIN
 ```
 
-## Mises à jour ultérieures
+## Future Updates
 
 ```bash
 git pull origin main
