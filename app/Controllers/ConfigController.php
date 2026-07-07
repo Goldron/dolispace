@@ -18,6 +18,17 @@ class ConfigController extends BaseController
         'facture_enabled'            => 'facture',
     ];
 
+    // Icônes générées à partir de l'upload (nom de fichier => taille en pixels)
+    private const ICON_SIZES = [
+        'web-app-manifest-512x512.png' => 512,
+        'web-app-manifest-192x192.png' => 192,
+        'apple-touch-icon.png'         => 180,
+        'favicon-96x96.png'            => 96,
+    ];
+
+    // Tailles embarquées dans favicon.ico (format multi-résolution)
+    private const FAVICON_ICO_SIZES = [16, 32, 48];
+
     // Affiche la liste des clés de configuration, triées par hook/position/clé
     public function index(): string
     {
@@ -134,6 +145,91 @@ class ConfigController extends BaseController
         model(ConfigModel::class)->delete($id);
 
         return redirect()->to(admin_url('config'))->with('success', 'Entrée supprimée.');
+    }
+
+    // Régénère toutes les icônes de l'application à partir d'une image source (512×512 minimum)
+    public function updateIcon(): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $file = $this->request->getFile('icon_file');
+
+        if (! $file || ! $file->isValid()) {
+            return redirect()->to(admin_url('config'))->with('error', "Aucun fichier valide reçu.");
+        }
+
+        $allowed = ['image/png', 'image/jpeg', 'image/webp'];
+
+        if (! in_array($file->getMimeType(), $allowed, true)) {
+            return redirect()->to(admin_url('config'))->with('error', "Format non autorisé pour l'icône. Formats acceptés : PNG, JPG, WebP.");
+        }
+
+        $tempPath   = $file->getTempName();
+        $dimensions = @getimagesize($tempPath);
+
+        if (! $dimensions || $dimensions[0] < 512 || $dimensions[1] < 512) {
+            return redirect()->to(admin_url('config'))->with('error', "L'image doit faire au moins 512×512 pixels.");
+        }
+
+        foreach (self::ICON_SIZES as $filename => $size) {
+            try {
+                \Config\Services::image()
+                    ->withFile($tempPath)
+                    ->fit($size, $size, 'center')
+                    ->save(FCPATH . 'images/' . $filename);
+            } catch (\Throwable) {
+                return redirect()->to(admin_url('config'))->with('error', "Échec de la génération de l'icône « {$filename} ».");
+            }
+        }
+
+        try {
+            $this->generateFaviconIco($tempPath);
+        } catch (\Throwable) {
+            return redirect()->to(admin_url('config'))->with('error', 'Échec de la génération de favicon.ico.');
+        }
+
+        return redirect()->to(admin_url('config'))->with('success', 'Icônes régénérées avec succès.');
+    }
+
+    // Construit un favicon.ico multi-résolution (16/32/48 px) à partir d'images PNG encapsulées
+    // (format ICO moderne accepté par tous les navigateurs actuels, pas de BMP legacy nécessaire)
+    private function generateFaviconIco(string $sourcePath): void
+    {
+        $images = [];
+
+        foreach (self::FAVICON_ICO_SIZES as $size) {
+            $tmp = tempnam(sys_get_temp_dir(), 'ico') . '.png';
+
+            \Config\Services::image()
+                ->withFile($sourcePath)
+                ->fit($size, $size, 'center')
+                ->save($tmp);
+
+            $images[$size] = file_get_contents($tmp);
+            unlink($tmp);
+        }
+
+        $count   = count($images);
+        $offset  = 6 + ($count * 16);
+        $header  = pack('vvv', 0, 1, $count);
+        $entries = '';
+        $data    = '';
+
+        foreach ($images as $size => $bytes) {
+            $entries .= pack(
+                'C4vvVV',
+                $size >= 256 ? 0 : $size,
+                $size >= 256 ? 0 : $size,
+                0,
+                0,
+                1,
+                32,
+                strlen($bytes),
+                $offset
+            );
+            $data   .= $bytes;
+            $offset += strlen($bytes);
+        }
+
+        file_put_contents(FCPATH . 'images/favicon.ico', $header . $entries . $data);
     }
 
     // Envoie un email de test avec la configuration SMTP actuelle

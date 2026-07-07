@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= esc($title ?? 'Espace client') ?></title>
-    <link rel="icon" href="/favicon.ico?v=<?= filemtime(FCPATH . 'favicon.ico') ?>">
+    <link rel="icon" type="image/png" href="/images/favicon-96x96.png?v=<?= filemtime(FCPATH . 'images/favicon-96x96.png') ?>" sizes="96x96">
+    <link rel="shortcut icon" href="/images/favicon.ico?v=<?= filemtime(FCPATH . 'images/favicon.ico') ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=<?= filemtime(FCPATH . 'images/apple-touch-icon.png') ?>">
+    <link rel="manifest" href="/site.webmanifest">
 
     <?= vite('resources/js/app.js') ?>
     <style>
@@ -23,9 +26,9 @@
 
     <!-- Colonne gauche : image -->
     <div class="hidden md:block md:w-[60%] relative overflow-hidden bg-blue-900">
-        <img src="<?= base_url(cfg('background_url', '/images/back.jpg')) ?>" alt="" class="absolute inset-0 w-full h-full object-cover<?= cfg('background_animate', 'true') === 'true' ? ' animate-kenburns' : '' ?>">
+        <img src="<?= base_url(versioned_asset(cfg('background_url', '/images/back.jpg'))) ?>" alt="" class="absolute inset-0 w-full h-full object-cover<?= cfg('background_animate', 'true') === 'true' ? ' animate-kenburns' : '' ?>">
         <?php if (cfg('label_url')): ?>
-            <img src="<?= base_url(cfg('label_url')) ?>" alt="Label" class="absolute bottom-4 right-4 h-25 w-auto z-10">
+            <img src="<?= base_url(versioned_asset(cfg('label_url'))) ?>" alt="Label" class="absolute bottom-4 right-4 h-25 w-auto z-10">
         <?php endif ?>
     </div>
 
@@ -36,7 +39,7 @@
 
             <!-- Logo -->
             <div class="flex justify-center mb-10">
-                <img src="<?= base_url(cfg('logo_url', '/images/logo.svg')) ?>" alt="Logo" class="h-16 w-auto">
+                <img src="<?= base_url(versioned_asset(cfg('logo_url', '/images/logo.svg'))) ?>" alt="Logo" class="h-16 w-auto">
             </div>
 
             <!-- Accroche -->

@@ -36,6 +36,23 @@ if (! function_exists('cfg')) {
     }
 }
 
+if (! function_exists('versioned_asset')) {
+    /**
+     * Ajoute ?v=filemtime à un chemin d'asset public pour invalider le cache navigateur
+     * après un remplacement (logo, fond, label, icônes…).
+     */
+    function versioned_asset(string $path): string
+    {
+        if ($path === '') {
+            return $path;
+        }
+
+        $abs = FCPATH . ltrim($path, '/');
+
+        return $path . (is_file($abs) ? '?v=' . filemtime($abs) : '');
+    }
+}
+
 if (! function_exists('image_to_base64')) {
     function image_to_base64(string $imagePath, bool $withMime = true): string|false
     {

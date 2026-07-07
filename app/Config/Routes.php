@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->addRedirect('/', 'auth');
+$routes->get('site.webmanifest', 'ManifestController::index');
 
 $routes->group('dashboard', ['filter' => 'auth'], static function ($routes) {
     $routes->get('/',          'DashboardController::index');
@@ -50,6 +51,7 @@ $routes->group(admin_url(), ['filter' => 'admin'], static function ($routes) {
     $routes->post('config/store',          'ConfigController::store');
     $routes->post('config/(:num)/delete',  'ConfigController::delete/$1');
     $routes->post('config/test-email',     'ConfigController::testEmail');
+    $routes->post('config/icon',           'ConfigController::updateIcon');
 });
 
 $routes->group('auth', static function ($routes) {

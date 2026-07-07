@@ -10,11 +10,7 @@ $checkboxClass = 'shrink-0 size-4 border-gray-300 rounded text-blue-600 focus:ri
 $selectClass   = 'py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none disabled:opacity-50 disabled:pointer-events-none';
 
 // Ajoute ?v=filemtime pour invalider le cache navigateur après chaque upload
-$imgSrc = static function (string $path): string {
-    if (empty($path)) return '';
-    $abs = FCPATH . ltrim($path, '/');
-    return esc($path) . (is_file($abs) ? '?v=' . filemtime($abs) : '');
-};
+$imgSrc = static fn (string $path): string => esc(versioned_asset($path));
 
 // Fonctionnalités mises en évidence en tête de page (toggles des modules Dolibarr optionnels)
 $featureLabels = [
@@ -100,6 +96,45 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                 <tr class="bg-gray-50">
                                     <td colspan="6" class="px-5 py-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">
                                         <?= esc($currentHook ?? 'Général') ?>
+                                    </td>
+                                </tr>
+                            <?php endif ?>
+                            <?php if ($row['config_key'] === 'logo_url'): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-5 py-3 font-mono text-xs text-gray-800 align-middle whitespace-nowrap">icon</td>
+                                    <td class="px-5 py-3 align-middle">
+                                        <span class="text-xs text-gray-300 italic">—</span>
+                                    </td>
+                                    <td class="px-5 py-3 align-middle">
+                                        <span class="inline-flex items-center py-1 px-2.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">file</span>
+                                    </td>
+                                    <td class="px-5 py-3 align-middle">
+                                        <div class="flex items-center gap-x-4">
+                                            <div class="w-1/2 flex items-center justify-center h-14 rounded border border-gray-200 bg-gray-50">
+                                                <img src="<?= $imgSrc('/images/web-app-manifest-512x512.png') ?>" alt="Icône actuelle"
+                                                     class="max-h-12 max-w-full object-contain">
+                                            </div>
+                                            <div class="w-1/2 flex flex-col gap-y-1.5">
+                                                <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
+                                                    <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                                                    <span id="label-icon_file">Choisir une image (512×512 px min.)…</span>
+                                                    <input type="file" name="icon_file" form="icon-form" class="sr-only"
+                                                           accept="image/png,image/jpeg,image/webp"
+                                                           onchange="document.getElementById('label-icon_file').textContent = this.files[0]?.name ?? 'Choisir une image (512×512 px min.)…'">
+                                                </label>
+                                                <p class="text-xs text-gray-400">PNG, JPG ou WebP — régénère toutes les tailles</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-3 text-xs text-gray-500 align-middle">
+                                        Icône de l'application (512, 192, apple-touch-icon, favicon, favicon.ico)
+                                    </td>
+                                    <td class="px-5 py-3 align-middle text-end">
+                                        <button type="submit" form="icon-form" class="text-gray-400 hover:text-blue-600 transition" title="Régénérer les icônes">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                                            </svg>
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endif ?>
@@ -257,6 +292,10 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
         <?= csrf_field() ?>
     </form>
 <?php endif; endforeach ?>
+
+<form id="icon-form" action="<?= site_url(admin_url('config/icon')) ?>" method="post" enctype="multipart/form-data" hidden>
+    <?= csrf_field() ?>
+</form>
 
 <!-- Test d'envoi d'email -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
