@@ -43,7 +43,7 @@ $statusLabels = [
             $status   = $statusLabels[(int)($p['statut'] ?? 0)] ?? $statusLabels[0];
             $date     = $p['datep'] ? date('d/m/Y', (int)$p['datep']) : '—';
             $expiry   = $p['fin_validite'] ? date('d/m/Y', (int)$p['fin_validite']) : '—';
-            $ttc      = number_format((float)($p['total_ttc'] ?? 0), 2, ',', ' ') . ' €';
+            $ttc      = number_format((float)($p['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
             $isEnCours   = in_array((int)($p['statut'] ?? 0), [1, 2]);
             $collapseId  = 'lines-' . $i;
             $lines       = $p['lines'] ?? [];
@@ -87,14 +87,15 @@ $statusLabels = [
                         <div class="mt-3 pt-3 border-t border-gray-100 space-y-2">
                             <?php foreach ($lines as $line): ?>
                                 <?php
-                                $lineDesc  = esc((string)($line['description'] ?? $line['desc'] ?? '—'));
+                                // Description brute (peut contenir du HTML saisi dans Dolibarr) : ne pas échapper
+                                $lineDesc  = (string)($line['description'] ?? $line['desc'] ?? '—');
                                 $lineQty   = (float)($line['qty'] ?? 0);
-                                $linePrice = number_format((float)($line['subprice'] ?? 0), 2, ',', ' ') . ' €';
-                                $lineTtc   = number_format((float)($line['total_ttc'] ?? 0), 2, ',', ' ') . ' €';
+                                $linePrice = number_format((float)($line['subprice'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
+                                $lineTtc   = number_format((float)($line['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
                                 ?>
                                 <div class="flex items-start justify-between gap-x-3 text-xs">
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-gray-700 font-medium truncate"><?= $lineDesc ?></p>
+                                        <div class="text-gray-700 font-medium truncate"><?= $lineDesc ?></div>
                                         <p class="text-gray-400"><?= $lineQty ?> × <?= $linePrice ?> HT</p>
                                     </div>
                                     <span class="shrink-0 font-semibold text-gray-900"><?= $lineTtc ?></span>
@@ -103,7 +104,7 @@ $statusLabels = [
 
                             <div class="flex items-center justify-between pt-2 mt-1 border-t border-gray-200 text-xs">
                                 <span class="text-gray-500 font-medium">Total HT</span>
-                                <span class="font-bold text-gray-900"><?= number_format((float)($p['total_ht'] ?? 0), 2, ',', ' ') ?> €</span>
+                                <span class="font-bold text-gray-900"><?= number_format((float)($p['total_ht'] ?? 0), 2, ',', "\u{A0}") ?>&nbsp;€</span>
                             </div>
                         </div>
                     </div>
