@@ -19,6 +19,11 @@ class Clamdscan
             return $this->failure('Fichier introuvable : ' . $filePath);
         }
 
+        // Le démon clamd tourne sous un utilisateur système distinct (ex: clamav) et ne
+        // partage pas forcément de groupe avec PHP : sans lecture publique, il refuse
+        // le fichier temporaire (0600 par défaut) avec "Access denied".
+        @chmod($filePath, 0644);
+
         $binary  = (string) cfg('clamdscan_path', '/usr/bin/clamdscan');
         $command = escapeshellcmd($binary) . ' --no-summary ' . escapeshellarg($filePath) . ' 2>&1';
         $output  = [];
