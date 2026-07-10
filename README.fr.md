@@ -1,5 +1,9 @@
 # Dolispace
 
+![Tests](https://img.shields.io/badge/tests-PHPUnit-6C4675)
+![License](https://img.shields.io/github/license/Goldron/dolispace)
+![Release](https://img.shields.io/github/v/release/Goldron/dolispace)
+
 ![Dolispace](.github/images/dolispace.png)
 
 Espace client web moderne permettant aux clients de consulter leurs devis, commandes, expéditions et factures grâce à une intégration avec l’API REST de [Dolibarr](https://www.dolibarr.org).

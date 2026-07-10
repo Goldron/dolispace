@@ -89,7 +89,7 @@ server {
         add_header Cache-Control "public, immutable";
     }
 
-    location ~ /\.ht { deny all; }
+    location ~ /\. { deny all; }
     location ~ ^/(application|system|tests|writable|vendor)/ { return 403; }
 
     ssl_certificate /etc/letsencrypt/live/NOUVEAU_DOMAINE/fullchain.pem;

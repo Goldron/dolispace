@@ -1,5 +1,9 @@
 # Dolispace
 
+![Tests](https://img.shields.io/badge/tests-PHPUnit-6C4675)
+![License](https://img.shields.io/github/license/Goldron/dolispace)
+![Release](https://img.shields.io/github/v/release/Goldron/dolispace)
+
 ![Dolispace](.github/images/dolispace.png)
 
 A modern web customer portal allowing customers to view their quotes, orders, shipments, and invoices through an integration with the [Dolibarr](https://www.dolibarr.org) REST API.
