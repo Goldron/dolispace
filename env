@@ -35,6 +35,15 @@ database.default.DBDriver = SQLite3
 database.default.database = database.db
 database.default.DBPrefix = coop_
 
+# Alternative : MySQL / MariaDB
+# database.default.DBDriver = MySQLi
+# database.default.hostname = localhost
+# database.default.database = dolispace
+# database.default.username = root
+# database.default.password =
+# database.default.DBPrefix = coop_
+# database.default.port     = 3306
+
 #--------------------------------------------------------------------
 # ADMINISTRATION
 #--------------------------------------------------------------------

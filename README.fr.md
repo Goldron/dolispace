@@ -1,5 +1,7 @@
 # Dolispace
 
+![Dolispace](.github/images/dolispace.png)
+
 Espace client web moderne permettant aux clients de consulter leurs devis, commandes, expéditions et factures grâce à une intégration avec l’API REST de [Dolibarr](https://www.dolibarr.org).
 
 L’application gère ses propres comptes utilisateurs : aucun compte n’a besoin d’être créé ou administré dans Dolibarr. Elle n’expose jamais Dolibarr directement et communique uniquement avec son API REST.
@@ -19,16 +21,20 @@ Elle peut également être déployée sur un serveur indépendant de celui hébe
 - Connexion par mot de passe + OTP pour les comptes existants
 - Consultation des devis, commandes, expéditions, certificats et factures avec téléchargement PDF
 - Devis, commandes, factures, expéditions et certificats activables/désactivables individuellement
-  (`admin/config` → carte "Fonctionnalités"), masqués automatiquement si le module Dolibarr correspondant
-  n'est pas détecté
 - Espace de dépôt de fichiers (uploads)
 - Gestion du compte (email, mot de passe, coordonnées, TVA intracommunautaire via VIES)
 - Interface d'administration : configuration de l'application, gestion des utilisateurs (recherche,
   suppression), journaux d'activité, fichiers uploadés, diagnostics API Dolibarr, test d'envoi SMTP, etc...
 
+## Aperçu
+
+![Aperçu 1](.github/images/capt_dolispace.png)
+![Aperçu 2](.github/images/capt_dolispace02.png)
+![Aperçu 3](.github/images/capt_dolispace03.png)
+
 ## Prérequis
 
-- PHP 8.2+ avec les extensions : `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
+- PHP 8.2+ avec les extensions : `intl`, `mbstring`, `sqlite3`, `curl`, `gd`, `fileinfo`
 - Node.js + npm
 
 ## Installation

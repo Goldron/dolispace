@@ -2,49 +2,22 @@
 
 ## Server Requirements
 
-- PHP 8.2+ with extensions: `intl`, `mbstring`, `sqlite3`, `curl`, `gd`
+- PHP 8.2+ with extensions: `intl`, `mbstring`, `sqlite3`, `curl`, `gd`, `fileinfo`
 - Composer
 - Node.js + npm (for the Vite build)
 - Nginx + PHP-FPM
 - SSL certificate (Let's Encrypt / certbot)
 
-## 1. Access to the Private Repository
+## 1. Clone the Project
 
-The `Goldron/dolispace` repository is private. Two options are available:
-
-**Option A — Deploy key (recommended, read-only)**
+The `Goldron/dolispace` repository is public — no authentication required to clone.
 
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/dolispace_deploy -N ""
-cat ~/.ssh/dolispace_deploy.pub
-```
-
-Add this public key to GitHub → repository `dolispace` → Settings → Deploy keys → Add deploy key (without write access).
-
-Then, on the new server, add the following to `~/.ssh/config`:
-
-```
-Host github-dolispace
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/dolispace_deploy
-```
-
-**Option B — Authenticated gh account** (if you already ran `gh auth login` on this server)
-
-```bash
-gh repo clone Goldron/dolispace
-```
-
-## 2. Clone the Project
-
-```bash
-git clone github-dolispace:Goldron/dolispace.git client
-# or: git clone git@github.com:Goldron/dolispace.git client
+git clone https://github.com/Goldron/dolispace.git client
 cd client
 ```
 
-## 3. Dependencies
+## 2. Dependencies
 
 ```bash
 composer install --no-dev --optimize-autoloader
@@ -60,7 +33,7 @@ To run tests (locally or in CI before deployment): run `composer install` (witho
 vendor/bin/phpunit
 ```
 
-## 4. Configuration
+## 3. Configuration
 
 ```bash
 cp env .env
@@ -75,7 +48,7 @@ Edit `.env`:
 - `database.default.database = database.db`
 - `database.default.DBPrefix = coop_`
 
-## 5. Database and Permissions
+## 4. Database and Permissions
 
 ```bash
 chmod -R 775 writable
@@ -93,7 +66,7 @@ The seeder also enables the feature toggles by default:
 
 Adjust them in the **"Features"** section of `admin/config` according to the modules actually enabled on the Dolibarr side (checkable in `admin/status`).
 
-## 6. Nginx
+## 5. Nginx
 
 Adapt the existing vhost (`/etc/nginx/sites-available/client.goldron.fr`):
 

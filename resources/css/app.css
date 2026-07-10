@@ -1,12 +1,9 @@
 @import "tailwindcss";
 @import "../../node_modules/preline/variants.css";
 
-
 :root {
   --hue: 24;
 }
-
-
 
 @theme inline {
   --color-blue-50:  oklch(97% 0.015 var(--hue));
@@ -20,16 +17,3 @@
 }
 
 
-/* :root {
-  --hue: 38;
-}
-@theme inline {
-  --color-blue-50:  oklch(97% 0.015 var(--hue));
-  --color-blue-100: oklch(97% 0.04  var(--hue));
-  --color-blue-200: oklch(97% 0.08  var(--hue));
-  --color-blue-400: oklch(94% 0.17  var(--hue));
-  --color-blue-500: oklch(88% 0.21  var(--hue));
-  --color-blue-600: oklch(72% 0.22  var(--hue));
-  --color-blue-700: oklch(47% 0.20  var(--hue));
-  --color-blue-800: oklch(39% 0.17  var(--hue));
-} */
