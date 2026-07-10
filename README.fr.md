@@ -70,3 +70,15 @@ vendor/bin/phpunit
 ## Déploiement
 
 Voir [DEPLOYMENT.fr.md](DEPLOYMENT.fr.md).
+
+---
+
+<p align="center">
+  <a href="https://www.siladel.fr">
+    <img src=".github/images/siladel_black.png" alt="SILADEL" height="40">
+  </a>
+</p>
+
+<p align="center">
+  Développé par <a href="https://www.siladel.fr">SILADEL</a> — Auteur : IGREJA David
+</p>
