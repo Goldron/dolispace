@@ -12,7 +12,7 @@ class DashboardController extends BaseController
     public function proposals(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('propal_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -46,7 +46,7 @@ class DashboardController extends BaseController
     public function downloadProposal(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('propal_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -54,21 +54,21 @@ class DashboardController extends BaseController
         $proposal = $dolibarr->getProposal($id);
 
         if (isset($proposal['error'])) {
-            return redirect()->to('dashboard/proposals')->with('error', 'Devis introuvable.');
+            return redirect()->to('dashboard/proposals')->with('error', lang('Dashboard.proposalNotFound'));
         }
 
         if ((string)($proposal['socid'] ?? '') !== (string)$partyId) {
-            return redirect()->to('dashboard/proposals')->with('error', 'Accès refusé.');
+            return redirect()->to('dashboard/proposals')->with('error', lang('Dashboard.accessDenied'));
         }
 
         if (! in_array((int)($proposal['statut'] ?? 0), [1, 2])) {
-            return redirect()->to('dashboard/proposals')->with('error', 'Ce devis n\'est pas disponible au téléchargement.');
+            return redirect()->to('dashboard/proposals')->with('error', lang('Dashboard.proposalNotDownloadable'));
         }
 
         $originalFile = preg_replace('#^propale/#', '', (string)($proposal['last_main_doc'] ?? ''));
 
         if (! $originalFile) {
-            return redirect()->to('dashboard/proposals')->with('error', 'Aucun document PDF disponible.');
+            return redirect()->to('dashboard/proposals')->with('error', lang('Dashboard.noPdfAvailable'));
         }
 
         // modulepart API = 'propal' (sans e), alors que le dossier de stockage Dolibarr est 'propale/'
@@ -79,7 +79,7 @@ class DashboardController extends BaseController
         }
 
         if (isset($result['error']) || empty($result['content'])) {
-            return redirect()->to('dashboard/proposals')->with('error', 'Impossible de télécharger le document.');
+            return redirect()->to('dashboard/proposals')->with('error', lang('Dashboard.unableToDownloadDocument'));
         }
 
         $pdf      = base64_decode($result['content']);
@@ -101,7 +101,7 @@ class DashboardController extends BaseController
     public function orders(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('commande_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -151,7 +151,7 @@ class DashboardController extends BaseController
     public function downloadOrder(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('commande_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -159,21 +159,21 @@ class DashboardController extends BaseController
         $order    = $dolibarr->getOrder($id);
 
         if (isset($order['error'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Commande introuvable.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.orderNotFound'));
         }
 
         if ((string)($order['socid'] ?? '') !== (string)$partyId) {
-            return redirect()->to('dashboard/orders')->with('error', 'Accès refusé.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.accessDenied'));
         }
 
         if (! in_array((int)($order['statut'] ?? 0), [1, 2, 3])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Cette commande n\'est pas disponible au téléchargement.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.orderNotDownloadable'));
         }
 
         $originalFile = preg_replace('#^commande/#', '', (string)($order['last_main_doc'] ?? ''));
 
         if (! $originalFile) {
-            return redirect()->to('dashboard/orders')->with('error', 'Aucun document PDF disponible.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.noPdfAvailable'));
         }
 
         $result = $dolibarr->downloadDocument('commande', $originalFile);
@@ -183,7 +183,7 @@ class DashboardController extends BaseController
         }
 
         if (isset($result['error']) || empty($result['content'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Impossible de télécharger le document.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.unableToDownloadDocument'));
         }
 
         $pdf = base64_decode($result['content']);
@@ -207,21 +207,21 @@ class DashboardController extends BaseController
         $partyId  = session()->get('party_id');
 
         if (! cfg('commande_enabled', true) || ! cfg('expedition_enabled', false) || ! $dolibarr->hasModule('expedition')) {
-            return redirect()->to('dashboard/orders')->with('error', 'Fonctionnalité indisponible.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.featureUnavailable'));
         }
 
         $shipment = $dolibarr->getShipment($id);
 
         if (isset($shipment['error'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Expédition introuvable.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.shipmentNotFound'));
         }
 
         if ((string)($shipment['socid'] ?? '') !== (string)$partyId) {
-            return redirect()->to('dashboard/orders')->with('error', 'Accès refusé.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.accessDenied'));
         }
 
         if ((int)($shipment['statut'] ?? 0) === 0) {
-            return redirect()->to('dashboard/orders')->with('error', 'Cette expédition n\'est pas disponible au téléchargement.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.shipmentNotDownloadable'));
         }
 
         $ref          = (string)($shipment['ref'] ?? '');
@@ -236,7 +236,7 @@ class DashboardController extends BaseController
         }
 
         if (isset($result['error']) || empty($result['content'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Impossible de télécharger le document.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.unableToDownloadDocument'));
         }
 
         $pdf = base64_decode($result['content']);
@@ -260,25 +260,25 @@ class DashboardController extends BaseController
         $partyId  = session()->get('party_id');
 
         if (! cfg('commande_enabled', true) || ! cfg('certificatsclients_enabled', false) || ! $dolibarr->hasModule('certificatsclients')) {
-            return redirect()->to('dashboard/orders')->with('error', 'Fonctionnalité indisponible.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.featureUnavailable'));
         }
 
         $certificate = $dolibarr->getCertificate($id);
 
         if (isset($certificate['error'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Certificat introuvable.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.certificateNotFound'));
         }
 
         $order = $dolibarr->getOrder((int) $certificate['order_id']);
 
         if (isset($order['error']) || (string)($order['socid'] ?? '') !== (string)$partyId) {
-            return redirect()->to('dashboard/orders')->with('error', 'Accès refusé.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.accessDenied'));
         }
 
         $result = $dolibarr->downloadCertificate($id);
 
         if (isset($result['error']) || empty($result['content'])) {
-            return redirect()->to('dashboard/orders')->with('error', 'Impossible de télécharger le document.');
+            return redirect()->to('dashboard/orders')->with('error', lang('Dashboard.unableToDownloadDocument'));
         }
 
         $pdf      = base64_decode($result['content']);
@@ -300,7 +300,7 @@ class DashboardController extends BaseController
     public function invoices(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('facture_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -333,7 +333,7 @@ class DashboardController extends BaseController
     public function downloadInvoice(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('facture_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $dolibarr = service('dolibarr');
@@ -341,21 +341,21 @@ class DashboardController extends BaseController
         $invoice  = $dolibarr->getInvoice($id);
 
         if (isset($invoice['error'])) {
-            return redirect()->to('dashboard/invoices')->with('error', 'Facture introuvable.');
+            return redirect()->to('dashboard/invoices')->with('error', lang('Dashboard.invoiceNotFound'));
         }
 
         if ((string)($invoice['socid'] ?? '') !== (string)$partyId) {
-            return redirect()->to('dashboard/invoices')->with('error', 'Accès refusé.');
+            return redirect()->to('dashboard/invoices')->with('error', lang('Dashboard.accessDenied'));
         }
 
         if (! in_array((int)($invoice['statut'] ?? 0), [1, 2])) {
-            return redirect()->to('dashboard/invoices')->with('error', 'Cette facture n\'est pas disponible au téléchargement.');
+            return redirect()->to('dashboard/invoices')->with('error', lang('Dashboard.invoiceNotDownloadable'));
         }
 
         $originalFile = preg_replace('#^facture/#', '', (string)($invoice['last_main_doc'] ?? ''));
 
         if (! $originalFile) {
-            return redirect()->to('dashboard/invoices')->with('error', 'Aucun document PDF disponible.');
+            return redirect()->to('dashboard/invoices')->with('error', lang('Dashboard.noPdfAvailable'));
         }
 
         $result = $dolibarr->downloadDocument('facture', $originalFile);
@@ -365,7 +365,7 @@ class DashboardController extends BaseController
         }
 
         if (isset($result['error']) || empty($result['content'])) {
-            return redirect()->to('dashboard/invoices')->with('error', 'Impossible de télécharger le document.');
+            return redirect()->to('dashboard/invoices')->with('error', lang('Dashboard.unableToDownloadDocument'));
         }
 
         $pdf = base64_decode($result['content']);
@@ -469,19 +469,23 @@ class DashboardController extends BaseController
         $result = $dolibarr->updateThirdparty($partyId, $data);
 
         if (isset($result['error'])) {
-            return redirect()->to('dashboard/company')->with('error', 'Erreur lors de la mise à jour : ' . $result['error']);
+            return redirect()->to('dashboard/company')->with('error', lang('Dashboard.updateError', [$result['error']]));
         }
 
         cache()->delete('company_' . session()->get('user_id'));
 
         model(LogModel::class)->record((int) session()->get('user_id'), 'update_company', $data);
 
-        return redirect()->to('dashboard/company')->with('success', 'Informations mises à jour.');
+        return redirect()->to('dashboard/company')->with('success', lang('Dashboard.infoUpdated'));
     }
 
     // Vérifie un N° TVA via VIES — retourne JSON (GET, pas de modification)
     public function validateTva(): \CodeIgniter\HTTP\ResponseInterface
     {
+        if (! cfg('vat_field_enabled', true)) {
+            return $this->response->setJSON(['valid' => false, 'error' => lang('Dashboard.featureDisabled')]);
+        }
+
         $tva    = strtoupper(trim($this->request->getGet('tva') ?? ''));
         $vies   = new \App\Libraries\ViesApi();
         $result = $vies->validate($tva);
@@ -492,19 +496,23 @@ class DashboardController extends BaseController
     // Enregistre le N° TVA après re-validation serveur
     public function updateTva(): \CodeIgniter\HTTP\RedirectResponse
     {
+        if (! cfg('vat_field_enabled', true)) {
+            return redirect()->to('dashboard/company')->with('error', lang('Dashboard.featureDisabled'));
+        }
+
         $dolibarr = service('dolibarr');
         $partyId  = (int) session()->get('party_id');
         $tva      = strtoupper(trim($this->request->getPost('tva_intra') ?? ''));
 
         if (empty($tva)) {
-            return redirect()->to('dashboard/company')->with('error', 'N° TVA vide.');
+            return redirect()->to('dashboard/company')->with('error', lang('Dashboard.emptyVat'));
         }
 
         $vies  = new \App\Libraries\ViesApi();
         $check = $vies->validate($tva);
 
         if (! $check['valid']) {
-            return redirect()->to('dashboard/company')->with('error', 'N° TVA invalide : ' . $check['error']);
+            return redirect()->to('dashboard/company')->with('error', lang('Dashboard.invalidVat', [$check['error']]));
         }
 
         $payload = ['tva_intra' => $tva];
@@ -517,7 +525,7 @@ class DashboardController extends BaseController
         $result = $dolibarr->updateThirdparty($partyId, $payload);
 
         if (isset($result['error'])) {
-            return redirect()->to('dashboard/company')->with('error', 'Erreur lors de la mise à jour : ' . $result['error']);
+            return redirect()->to('dashboard/company')->with('error', lang('Dashboard.updateError', [$result['error']]));
         }
 
         cache()->delete('company_' . session()->get('user_id'));
@@ -525,8 +533,8 @@ class DashboardController extends BaseController
         model(LogModel::class)->record((int) session()->get('user_id'), 'update_tva', ['tva_intra' => $tva]);
 
         $successMsg = ! empty($name)
-            ? 'N° TVA et raison sociale mis à jour.'
-            : 'N° TVA mis à jour.';
+            ? lang('Dashboard.vatAndNameUpdated')
+            : lang('Dashboard.vatUpdated');
 
         return redirect()->to('dashboard/company')->with('success', $successMsg);
     }
