@@ -5,24 +5,24 @@
 
 <div class="mb-8 flex flex-col gap-y-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-xl font-semibold text-gray-900">Mon profil</h1>
-        <p class="mt-1 text-sm text-gray-500">Paramètres de votre profil.</p>
+        <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Dashboard.myProfileTitle')) ?></h1>
+        <p class="mt-1 text-sm text-gray-500"><?= esc(lang('Dashboard.profileSettings')) ?></p>
     </div>
     <div class="flex items-center gap-x-2 self-end sm:self-auto">
-        <button type="button" id="btn-cancel" class="hidden py-2 px-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 transition">Annuler</button>
+        <button type="button" id="btn-cancel" class="hidden py-2 px-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 transition"><?= esc(lang('Dashboard.cancel')) ?></button>
         <button type="button" id="btn-edit"
             class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition">
             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
             </svg>
-            Modifier
+            <?= esc(lang('Auth.edit')) ?>
         </button>
         <button type="submit" form="form-profile" id="btn-save"
             class="hidden py-2 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/>
             </svg>
-            Enregistrer
+            <?= esc(lang('Dashboard.save')) ?>
         </button>
     </div>
 </div>
@@ -43,11 +43,11 @@
             <svg class="size-4 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
             </svg>
-            <span>Un lien de validation a été envoyé à <strong><?= esc((string)$user['email_pending']) ?></strong>. Cliquez sur le lien dans l'email pour confirmer le changement.</span>
+            <span><?= lang('Dashboard.emailChangePendingNotice', [esc((string)$user['email_pending'])]) ?></span>
         </div>
         <form action="<?= site_url('dashboard/account/cancel-email') ?>" method="POST" class="shrink-0">
             <?= csrf_field() ?>
-            <button type="submit" class="text-amber-600 hover:text-amber-800 underline whitespace-nowrap text-xs transition">Annuler</button>
+            <button type="submit" class="text-amber-600 hover:text-amber-800 underline whitespace-nowrap text-xs transition"><?= esc(lang('Dashboard.cancel')) ?></button>
         </form>
     </div>
 <?php endif ?>
@@ -59,11 +59,11 @@
             <svg class="size-4 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
             </svg>
-            <span>Un lien de validation a été envoyé à <strong><?= esc((string)($user['email'] ?? '')) ?></strong> pour confirmer le changement de mot de passe.</span>
+            <span><?= lang('Dashboard.passwordChangePendingNotice', [esc((string)($user['email'] ?? ''))]) ?></span>
         </div>
         <form action="<?= site_url('dashboard/account/cancel-password') ?>" method="POST" class="shrink-0">
             <?= csrf_field() ?>
-            <button type="submit" class="text-amber-600 hover:text-amber-800 underline whitespace-nowrap text-xs transition">Annuler</button>
+            <button type="submit" class="text-amber-600 hover:text-amber-800 underline whitespace-nowrap text-xs transition"><?= esc(lang('Dashboard.cancel')) ?></button>
         </form>
     </div>
 <?php endif ?>
@@ -75,16 +75,16 @@
 
         <!-- Identité -->
         <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Identité</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Dashboard.identity')) ?></p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <p class="text-xs font-medium text-gray-600 mb-1">Prénom</p>
+                    <p class="text-xs font-medium text-gray-600 mb-1"><?= esc(lang('Dashboard.firstName')) ?></p>
                     <p class="field-view w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900"><?= esc((string)($user['first_name'] ?? '')) ?: '—' ?></p>
                     <input type="text" name="first_name" value="<?= esc((string)($user['first_name'] ?? '')) ?>"
                            class="field-edit hidden w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-gray-600 mb-1">Nom</p>
+                    <p class="text-xs font-medium text-gray-600 mb-1"><?= esc(lang('Dashboard.lastName')) ?></p>
                     <p class="field-view w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900"><?= esc((string)($user['name'] ?? '')) ?: '—' ?></p>
                     <input type="text" name="name" value="<?= esc((string)($user['name'] ?? '')) ?>"
                            class="field-edit hidden w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -96,14 +96,14 @@
 
         <!-- Adresse email -->
         <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Adresse email</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Dashboard.emailAddress')) ?></p>
             <?php if (! empty($user['email_pending'])): ?>
-                <p class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400 italic">Modification en attente de confirmation…</p>
+                <p class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400 italic"><?= esc(lang('Dashboard.pendingConfirmation')) ?></p>
             <?php else: ?>
                 <p class="field-view w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900"><?= esc((string)($user['email'] ?? '')) ?></p>
                 <input type="email" name="email" value="<?= esc((string)($user['email'] ?? '')) ?>"
                        class="field-edit hidden w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <p class="field-edit hidden mt-1 text-xs text-gray-400">Modifiez pour changer votre adresse. Un lien de validation sera envoyé.</p>
+                <p class="field-edit hidden mt-1 text-xs text-gray-400"><?= esc(lang('Dashboard.modifyToChangeEmail')) ?></p>
             <?php endif ?>
         </div>
 
@@ -111,25 +111,46 @@
 
         <!-- Mot de passe -->
         <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Mot de passe</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Dashboard.password')) ?></p>
             <?php if (! empty($user['password_pending_token'])): ?>
-                <p class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400 italic">Modification en attente de confirmation…</p>
+                <p class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400 italic"><?= esc(lang('Dashboard.pendingConfirmation')) ?></p>
             <?php else: ?>
                 <p class="field-view w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400 tracking-widest">••••••••</p>
                 <div class="field-edit hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Nouveau mot de passe</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1"><?= esc(lang('Dashboard.newPassword')) ?></label>
                         <input type="password" name="new_password" placeholder="••••••••" minlength="8" autocomplete="new-password"
                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Confirmer</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1"><?= esc(lang('Dashboard.confirmPassword')) ?></label>
                         <input type="password" name="confirm_password" placeholder="••••••••" minlength="8" autocomplete="new-password"
                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
-                <p class="field-edit hidden mt-1 text-xs text-gray-400">Laissez vide pour conserver votre mot de passe actuel. Un lien de validation sera envoyé.</p>
+                <p class="field-edit hidden mt-1 text-xs text-gray-400"><?= esc(lang('Dashboard.leaveBlankToKeepPassword')) ?></p>
             <?php endif ?>
+        </div>
+
+        <div class="border-t border-gray-100"></div>
+
+        <!-- Langue -->
+        <?php
+        $localeLabels = [
+            ''   => lang('Dashboard.languageAuto'),
+            'fr' => lang('Dashboard.languageFr'),
+            'en' => lang('Dashboard.languageEn'),
+        ];
+        $currentLocale = (string)($user['locale'] ?? '');
+        ?>
+        <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Dashboard.language')) ?></p>
+            <p class="field-view w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900"><?= esc($localeLabels[$currentLocale] ?? $localeLabels['']) ?></p>
+            <select name="locale" class="field-edit hidden w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <?php foreach ($localeLabels as $value => $label): ?>
+                    <option value="<?= esc($value) ?>" <?= $currentLocale === $value ? 'selected' : '' ?>><?= esc($label) ?></option>
+                <?php endforeach ?>
+            </select>
         </div>
 
     </div>

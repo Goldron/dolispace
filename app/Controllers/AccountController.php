@@ -44,13 +44,16 @@ class AccountController extends BaseController
         $newEmail  = strtolower(trim($this->request->getPost('email') ?? ''));
         $password  = $this->request->getPost('new_password') ?? '';
         $confirm   = $this->request->getPost('confirm_password') ?? '';
+        $locale    = $this->request->getPost('locale');
+        $locale    = in_array($locale, config(\Config\App::class)->supportedLocales, true) ? $locale : null;
 
         if (empty($firstName) || empty($name)) {
-            return redirect()->to('dashboard/account')->with('error', 'Le prénom et le nom sont obligatoires.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.firstNameLastNameRequired'));
         }
 
-        $users->update($userId, ['first_name' => $firstName, 'name' => $name]);
+        $users->update($userId, ['first_name' => $firstName, 'name' => $name, 'locale' => $locale]);
         session()->set('user_name', trim($firstName . ' ' . $name));
+        session()->set('user_locale', $locale);
         model(LogModel::class)->record($userId, 'update_profile', ['first_name' => $firstName, 'name' => $name]);
 
         $emailChanging    = $newEmail && $newEmail !== strtolower($user['email']) && empty($user['email_pending']);
@@ -60,14 +63,14 @@ class AccountController extends BaseController
         // Changement d'email (ignoré si modification déjà en attente)
         if ($emailChanging) {
             if (! filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-                return redirect()->to('dashboard/account')->with('error', 'Adresse email invalide.');
+                return redirect()->to('dashboard/account')->with('error', lang('Auth.invalidEmail'));
             }
             if ($users->where('email', $newEmail)->where('id !=', $userId)->first()) {
-                return redirect()->to('dashboard/account')->with('error', 'Cette adresse email est déjà utilisée.');
+                return redirect()->to('dashboard/account')->with('error', lang('Dashboard.emailAlreadyUsed'));
             }
             $thirdparty = service('dolibarr')->getThirdpartyByEmail($newEmail);
             if (! empty($thirdparty) && isset($thirdparty['id']) && ! isset($thirdparty['error'])) {
-                return redirect()->to('dashboard/account')->with('error', 'Cette adresse email est déjà associée à un compte.');
+                return redirect()->to('dashboard/account')->with('error', lang('Dashboard.emailAlreadyAssociated'));
             }
 
             $token   = bin2hex(random_bytes(32));
@@ -79,10 +82,10 @@ class AccountController extends BaseController
         // Changement de mot de passe (ignoré si modification déjà en attente)
         if ($passwordChanging) {
             if (strlen($password) < 8) {
-                return redirect()->to('dashboard/account')->with('error', 'Le mot de passe doit contenir au moins 8 caractères.');
+                return redirect()->to('dashboard/account')->with('error', lang('Dashboard.passwordMinLength'));
             }
             if ($password !== $confirm) {
-                return redirect()->to('dashboard/account')->with('error', 'Les mots de passe ne correspondent pas.');
+                return redirect()->to('dashboard/account')->with('error', lang('Dashboard.passwordsDoNotMatch'));
             }
 
             $token   = bin2hex(random_bytes(32));
@@ -91,7 +94,7 @@ class AccountController extends BaseController
             $this->sendPasswordConfirmLink($user['email'], $token, $logo);
         }
 
-        return redirect()->to('dashboard/account')->with('success', 'Profil mis à jour.');
+        return redirect()->to('dashboard/account')->with('success', lang('Dashboard.profileUpdated'));
     }
 
     // Valide le lien reçu par email et applique le changement d'adresse
@@ -102,16 +105,16 @@ class AccountController extends BaseController
         $user   = $users->find($userId);
 
         if (empty($user['email_pending']) || empty($user['email_pending_token'])) {
-            return redirect()->to('dashboard/account')->with('error', 'Lien invalide ou expiré.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.invalidOrExpiredLink'));
         }
 
         if ($users->isPendingExpired($user)) {
             $users->cancelEmailChange($userId);
-            return redirect()->to('dashboard/account')->with('error', 'Le lien de validation a expiré. Veuillez recommencer.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.validationLinkExpired'));
         }
 
         if (! password_verify($token, $user['email_pending_token'])) {
-            return redirect()->to('dashboard/account')->with('error', 'Lien invalide.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.invalidLink'));
         }
 
         $newEmail = $user['email_pending'];
@@ -119,7 +122,7 @@ class AccountController extends BaseController
         session()->set('user_email', $newEmail);
         model(LogModel::class)->record($userId, 'update_email', ['email' => $newEmail]);
 
-        return redirect()->to('dashboard/account')->with('success', 'Votre adresse email a été mise à jour.');
+        return redirect()->to('dashboard/account')->with('success', lang('Dashboard.emailUpdated'));
     }
 
     // Valide le lien reçu par email et applique le changement de mot de passe
@@ -130,36 +133,36 @@ class AccountController extends BaseController
         $user   = $users->find($userId);
 
         if (empty($user['password_pending_token'])) {
-            return redirect()->to('dashboard/account')->with('error', 'Lien invalide ou expiré.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.invalidOrExpiredLink'));
         }
 
         if ($users->isPasswordPendingExpired($user)) {
             $users->cancelPasswordChange($userId);
-            return redirect()->to('dashboard/account')->with('error', 'Le lien de validation a expiré. Veuillez recommencer.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.validationLinkExpired'));
         }
 
         if (! password_verify($token, $user['password_pending_token'])) {
-            return redirect()->to('dashboard/account')->with('error', 'Lien invalide.');
+            return redirect()->to('dashboard/account')->with('error', lang('Dashboard.invalidLink'));
         }
 
         $users->applyPasswordChange($userId);
         model(LogModel::class)->record($userId, 'update_password');
 
-        return redirect()->to('dashboard/account')->with('success', 'Votre mot de passe a été mis à jour.');
+        return redirect()->to('dashboard/account')->with('success', lang('Dashboard.passwordUpdated'));
     }
 
     // Annule une demande de changement d'email en attente
     public function cancelEmail(): \CodeIgniter\HTTP\RedirectResponse
     {
         model(UserModel::class)->cancelEmailChange((int) session()->get('user_id'));
-        return redirect()->to('dashboard/account')->with('success', 'Modification annulée.');
+        return redirect()->to('dashboard/account')->with('success', lang('Dashboard.modificationCancelled'));
     }
 
     // Annule une demande de changement de mot de passe en attente
     public function cancelPassword(): \CodeIgniter\HTTP\RedirectResponse
     {
         model(UserModel::class)->cancelPasswordChange((int) session()->get('user_id'));
-        return redirect()->to('dashboard/account')->with('success', 'Modification annulée.');
+        return redirect()->to('dashboard/account')->with('success', lang('Dashboard.modificationCancelled'));
     }
 
     // Envoie l'email contenant le lien de confirmation de changement d'adresse
@@ -168,7 +171,7 @@ class AccountController extends BaseController
         $confirmUrl = base_url('dashboard/account/confirm-email/' . $token);
         $email      = make_email();
         $email->setTo($to);
-        $email->setSubject('Confirmer votre adresse email — ' . cfg('company_name'));
+        $email->setSubject(lang('Emails.confirmEmailSubject') . ' — ' . cfg('company_name'));
         $email->setMessage(view('dashboard/emails/email_change_link', [
             'confirmUrl' => $confirmUrl,
             'email'      => $to,
@@ -183,7 +186,7 @@ class AccountController extends BaseController
         $confirmUrl = base_url('dashboard/account/confirm-password/' . $token);
         $email      = make_email();
         $email->setTo($to);
-        $email->setSubject('Confirmer votre nouveau mot de passe — ' . cfg('company_name'));
+        $email->setSubject(lang('Emails.confirmPasswordSubject') . ' — ' . cfg('company_name'));
         $email->setMessage(view('dashboard/emails/password_change_link', [
             'confirmUrl' => $confirmUrl,
             'logo'       => $logo,

@@ -21,6 +21,7 @@ class UserModel extends Model
         'password',
         'phone',
         'phone_mobile',
+        'locale',
         'is_active',
         'email_verified_at',
         'last_login_at',
