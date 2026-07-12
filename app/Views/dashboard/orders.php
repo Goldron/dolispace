@@ -8,26 +8,26 @@ if (! cfg('show_drafts', false)) {
 }
 
 $statusLabels = [
-    -1 => ['label' => 'Annulée',           'class' => 'bg-red-100 text-red-700'],
-     0 => ['label' => 'Brouillon',          'class' => 'bg-gray-100 text-gray-600'],
-     1 => ['label' => 'Validée',            'class' => 'bg-amber-100 text-amber-700'],
-     2 => ['label' => 'En cours',           'class' => 'bg-blue-100 text-blue-700'],
-     3 => ['label' => 'Livrée',             'class' => 'bg-green-100 text-green-700'],
+    -1 => ['label' => lang('Dashboard.statusCancelled'), 'class' => 'bg-red-100 text-red-700'],
+     0 => ['label' => lang('Dashboard.statusDraft'),      'class' => 'bg-gray-100 text-gray-600'],
+     1 => ['label' => lang('Dashboard.statusValidated'),  'class' => 'bg-amber-100 text-amber-700'],
+     2 => ['label' => lang('Dashboard.statusInProgress'), 'class' => 'bg-blue-100 text-blue-700'],
+     3 => ['label' => lang('Dashboard.statusDelivered'),  'class' => 'bg-green-100 text-green-700'],
 ];
 $downloadableStatuts = [1, 2, 3];
 
 $shipmentStatusLabels = [
-    -1 => ['label' => 'Annulée',         'class' => 'bg-red-100 text-red-700'],
-     0 => ['label' => 'Brouillon',       'class' => 'bg-gray-100 text-gray-600'],
-     1 => ['label' => 'Envoi en cours',  'class' => 'bg-green-100 text-green-700'],
-     2 => ['label' => 'Clôturée',        'class' => 'bg-blue-100 text-blue-700'],
+    -1 => ['label' => lang('Dashboard.statusCancelled'), 'class' => 'bg-red-100 text-red-700'],
+     0 => ['label' => lang('Dashboard.statusDraft'),      'class' => 'bg-gray-100 text-gray-600'],
+     1 => ['label' => lang('Dashboard.statusShipping'),   'class' => 'bg-green-100 text-green-700'],
+     2 => ['label' => lang('Dashboard.statusClosed'),     'class' => 'bg-blue-100 text-blue-700'],
 ];
 ?>
 
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-xl font-semibold text-gray-900">Commandes</h1>
-        <p class="mt-1 text-sm text-gray-500"><?= count($orders) ?> commande<?= count($orders) > 1 ? 's' : '' ?> trouvée<?= count($orders) > 1 ? 's' : '' ?></p>
+        <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Dashboard.ordersTitle')) ?></h1>
+        <p class="mt-1 text-sm text-gray-500"><?= count($orders) ?> <?= esc(count($orders) > 1 ? lang('Dashboard.ordersFound') : lang('Dashboard.orderFound')) ?></p>
     </div>
 </div>
 
@@ -42,7 +42,7 @@ $shipmentStatusLabels = [
         <svg class="mx-auto size-10 text-gray-300 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 1-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 1-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>
         </svg>
-        <p class="text-sm text-gray-400">Aucune commande disponible.</p>
+        <p class="text-sm text-gray-400"><?= esc(lang('Dashboard.noOrdersAvailable')) ?></p>
     </div>
 
 <?php else: ?>
@@ -53,7 +53,8 @@ $shipmentStatusLabels = [
             $status     = $statusLabels[$statut] ?? $statusLabels[0];
             $date       = ! empty($o['date']) ? date('d/m/Y', (int)$o['date']) : '—';
             $delivery   = ! empty($o['date_livraison']) ? date('d/m/Y', (int)$o['date_livraison']) : '—';
-            $ttc        = number_format((float)($o['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
+            $currency   = doc_currency($o);
+            $ttc        = fmt_money(doc_amount($o, 'total_ttc', $currency), $currency['symbol']);
             $canExpand  = in_array($statut, $downloadableStatuts);
             $collapseId = 'lines-' . $i;
             $lines        = $o['lines'] ?? [];
@@ -76,7 +77,7 @@ $shipmentStatusLabels = [
                         <?php if ($hasDoc): ?>
                             <?php $docLabel = basename((string)$o['last_main_doc']); ?>
                             <a href="<?= site_url('dashboard/orders/' . $o['id'] . '/download') ?>"
-                               title="Télécharger le PDF : <?= esc($docLabel) ?>"
+                               title="<?= esc(lang('Dashboard.downloadPdfOf', [$docLabel])) ?>"
                                class="inline-flex items-center gap-x-1 pl-1 pr-2 py-0.5 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
                                 <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -87,9 +88,9 @@ $shipmentStatusLabels = [
                         <?php foreach ($certificates as $cert): ?>
                             <?php $certLabel = (string)($cert['label'] ?? $cert['filename'] ?? 'Certificat'); ?>
                             <span class="inline-flex items-center gap-x-1.5">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">Certificat</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700"><?= esc(lang('Dashboard.certificate')) ?></span>
                                 <a href="<?= site_url('dashboard/orders/certificates/' . $cert['id'] . '/download') ?>"
-                                   title="Télécharger le certificat : <?= esc($certLabel) ?>"
+                                   title="<?= esc(lang('Dashboard.downloadCertificateOf', [$certLabel])) ?>"
                                    class="inline-flex items-center gap-x-1 pl-1 pr-2 py-0.5 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
                                     <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -112,8 +113,8 @@ $shipmentStatusLabels = [
                 </div>
 
                 <div class="flex items-center justify-between text-xs text-gray-500">
-                    <span>Le <?= $date ?><?= $delivery !== '—' ? ' · Livraison le ' . $delivery : '' ?></span>
-                    <span class="font-semibold text-gray-900"><?= $ttc ?></span>
+                    <span><?= esc(lang('Dashboard.on')) ?> <?= $date ?><?= $delivery !== '—' ? ' · ' . esc(lang('Dashboard.deliveryOn')) . ' ' . $delivery : '' ?></span>
+                    <span class="font-semibold text-gray-900"><?= $ttc ?> <?= esc(lang('Dashboard.totalTTC')) ?></span>
                 </div>
 
                 <?php if ($canToggle): ?>
@@ -125,8 +126,8 @@ $shipmentStatusLabels = [
                                 // Description brute (peut contenir du HTML saisi dans Dolibarr) : ne pas échapper
                                 $lineDesc  = (string)($line['description'] ?? $line['desc'] ?? '—');
                                 $lineQty   = (float)($line['qty'] ?? 0);
-                                $linePrice = number_format((float)($line['subprice'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
-                                $lineTtc   = number_format((float)($line['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
+                                $linePrice = fmt_money(doc_amount($line, 'subprice', $currency), $currency['symbol']);
+                                $lineTtc   = fmt_money(doc_amount($line, 'total_ttc', $currency), $currency['symbol']);
                                 ?>
                                 <div class="flex items-start justify-between gap-x-3 text-xs">
                                     <div class="flex-1 min-w-0">
@@ -138,8 +139,8 @@ $shipmentStatusLabels = [
                             <?php endforeach ?>
 
                             <div class="flex items-center justify-between pt-2 mt-1 border-t border-gray-200 text-xs">
-                                <span class="text-gray-500 font-medium">Total HT</span>
-                                <span class="font-bold text-gray-900"><?= number_format((float)($o['total_ht'] ?? 0), 2, ',', "\u{A0}") ?>&nbsp;€</span>
+                                <span class="text-gray-500 font-medium"><?= esc(lang('Dashboard.totalHT')) ?></span>
+                                <span class="font-bold text-gray-900"><?= fmt_money(doc_amount($o, 'total_ht', $currency), $currency['symbol']) ?></span>
                             </div>
                         </div>
                         <?php endif ?>
@@ -148,7 +149,7 @@ $shipmentStatusLabels = [
 
                 <?php if (! empty($shipments)): ?>
                     <div class="mt-3 pt-3 border-t border-gray-100 space-y-2">
-                        <p class="text-xs font-medium text-gray-500">Expéditions</p>
+                        <p class="text-xs font-medium text-gray-500"><?= esc(lang('Dashboard.shipments')) ?></p>
                         <?php foreach ($shipments as $shipment): ?>
                             <?php
                             $shipRef        = (string)($shipment['ref'] ?? '');
@@ -169,7 +170,7 @@ $shipmentStatusLabels = [
                                     </span>
                                 </div>
                                 <a href="<?= site_url('dashboard/orders/shipments/' . $shipment['id'] . '/download') ?>"
-                                   title="Télécharger le PDF : <?= esc($shipDocLabel) ?>"
+                                   title="<?= esc(lang('Dashboard.downloadPdfOf', [$shipDocLabel])) ?>"
                                    class="inline-flex items-center gap-x-1 pl-1 pr-2 py-0.5 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
                                     <svg class="size-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -177,11 +178,11 @@ $shipmentStatusLabels = [
                                     <span class="text-xs truncate max-w-40"><?= esc($shipDocLabel) ?></span>
                                 </a>
                                 <div class="grid grid-cols-2 gap-y-1 gap-x-3 text-gray-500">
-                                    <span>Date : <span class="text-gray-700"><?= $shipDate ?></span></span>
-                                    <span>Date d'expédition : <span class="text-gray-700"><?= $shipExpedDate ?></span></span>
-                                    <span>Poids : <span class="text-gray-700"><?= esc((string)$shipWeight) ?></span></span>
-                                    <span>Méthode : <span class="text-gray-700"><?= esc((string)$shipMethod) ?></span></span>
-                                    <span class="col-span-2">N° de suivi : <span class="text-gray-700"><?= esc((string)$shipTracking) ?></span></span>
+                                    <span><?= esc(lang('Dashboard.date')) ?> : <span class="text-gray-700"><?= $shipDate ?></span></span>
+                                    <span><?= esc(lang('Dashboard.shipmentDate')) ?> : <span class="text-gray-700"><?= $shipExpedDate ?></span></span>
+                                    <span><?= esc(lang('Dashboard.weight')) ?> : <span class="text-gray-700"><?= esc((string)$shipWeight) ?></span></span>
+                                    <span><?= esc(lang('Dashboard.method')) ?> : <span class="text-gray-700"><?= esc((string)$shipMethod) ?></span></span>
+                                    <span class="col-span-2"><?= esc(lang('Dashboard.trackingNumber')) ?> : <span class="text-gray-700"><?= esc((string)$shipTracking) ?></span></span>
                                 </div>
                             </div>
                         <?php endforeach ?>

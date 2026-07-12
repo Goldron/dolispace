@@ -8,10 +8,10 @@ if (! cfg('show_drafts', false)) {
 }
 
 $statusLabels = [
-    0 => ['label' => 'Brouillon',  'class' => 'bg-gray-100 text-gray-600'],
-    1 => ['label' => 'Impayée',    'class' => 'bg-red-100 text-red-700'],
-    2 => ['label' => 'Payée',      'class' => 'bg-green-100 text-green-700'],
-    3 => ['label' => 'Abandonnée', 'class' => 'bg-gray-100 text-gray-400'],
+    0 => ['label' => lang('Dashboard.statusDraft'),     'class' => 'bg-gray-100 text-gray-600'],
+    1 => ['label' => lang('Dashboard.statusUnpaid'),    'class' => 'bg-red-100 text-red-700'],
+    2 => ['label' => lang('Dashboard.statusPaid'),      'class' => 'bg-green-100 text-green-700'],
+    3 => ['label' => lang('Dashboard.statusAbandoned'), 'class' => 'bg-gray-100 text-gray-400'],
 ];
 $downloadableStatuts = [1, 2];
 
@@ -19,8 +19,8 @@ $downloadableStatuts = [1, 2];
 
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-xl font-semibold text-gray-900">Factures</h1>
-        <p class="mt-1 text-sm text-gray-500"><?= count($invoices) ?> facture<?= count($invoices) > 1 ? 's' : '' ?> trouvée<?= count($invoices) > 1 ? 's' : '' ?></p>
+        <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Dashboard.invoicesTitle')) ?></h1>
+        <p class="mt-1 text-sm text-gray-500"><?= count($invoices) ?> <?= esc(count($invoices) > 1 ? lang('Dashboard.invoicesFound') : lang('Dashboard.invoiceFound')) ?></p>
     </div>
 </div>
 
@@ -35,7 +35,7 @@ $downloadableStatuts = [1, 2];
         <svg class="mx-auto size-10 text-gray-300 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
         </svg>
-        <p class="text-sm text-gray-400">Aucune facture disponible.</p>
+        <p class="text-sm text-gray-400"><?= esc(lang('Dashboard.noInvoicesAvailable')) ?></p>
     </div>
 
 <?php else: ?>
@@ -46,7 +46,8 @@ $downloadableStatuts = [1, 2];
             $status     = $statusLabels[$statut] ?? $statusLabels[0];
             $date       = ! empty($f['date']) ? date('d/m/Y', (int)$f['date']) : '—';
             $echeance   = ! empty($f['date_lim_reglement']) ? date('d/m/Y', (int)$f['date_lim_reglement']) : '—';
-            $ttc        = number_format((float)($f['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
+            $currency   = doc_currency($f);
+            $ttc        = fmt_money(doc_amount($f, 'total_ttc', $currency), $currency['symbol']);
             $canExpand  = in_array($statut, $downloadableStatuts);
             $collapseId = 'lines-' . $i;
             $lines      = $f['lines'] ?? [];
@@ -61,7 +62,7 @@ $downloadableStatuts = [1, 2];
                         </span>
                         <?php if ($hasDoc): ?>
                             <a href="<?= site_url('dashboard/invoices/' . $f['id'] . '/download') ?>"
-                               title="Télécharger le PDF"
+                               title="<?= esc(lang('Dashboard.downloadPdf')) ?>"
                                class="size-6 inline-flex items-center justify-center rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
                                 <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -81,8 +82,8 @@ $downloadableStatuts = [1, 2];
                 </div>
 
                 <div class="flex items-center justify-between text-xs text-gray-500">
-                    <span>Le <?= $date ?><?= $echeance !== '—' ? ' · Échéance le ' . $echeance : '' ?></span>
-                    <span class="font-semibold text-gray-900"><?= $ttc ?></span>
+                    <span><?= esc(lang('Dashboard.on')) ?> <?= $date ?><?= $echeance !== '—' ? ' · ' . esc(lang('Dashboard.dueDate')) . ' ' . $echeance : '' ?></span>
+                    <span class="font-semibold text-gray-900"><?= $ttc ?> <?= esc(lang('Dashboard.totalTTC')) ?></span>
                 </div>
 
                 <?php if ($canExpand && ! empty($lines)): ?>
@@ -93,8 +94,8 @@ $downloadableStatuts = [1, 2];
                                 // Description brute (peut contenir du HTML saisi dans Dolibarr) : ne pas échapper
                                 $lineDesc  = (string)($line['description'] ?? $line['desc'] ?? '—');
                                 $lineQty   = (float)($line['qty'] ?? 0);
-                                $linePrice = number_format((float)($line['subprice'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
-                                $lineTtc   = number_format((float)($line['total_ttc'] ?? 0), 2, ',', "\u{A0}") . "\u{A0}€";
+                                $linePrice = fmt_money(doc_amount($line, 'subprice', $currency), $currency['symbol']);
+                                $lineTtc   = fmt_money(doc_amount($line, 'total_ttc', $currency), $currency['symbol']);
                                 ?>
                                 <div class="flex items-start justify-between gap-x-3 text-xs">
                                     <div class="flex-1 min-w-0">
@@ -106,8 +107,8 @@ $downloadableStatuts = [1, 2];
                             <?php endforeach ?>
 
                             <div class="flex items-center justify-between pt-2 mt-1 border-t border-gray-200 text-xs">
-                                <span class="text-gray-500 font-medium">Total HT</span>
-                                <span class="font-bold text-gray-900"><?= number_format((float)($f['total_ht'] ?? 0), 2, ',', "\u{A0}") ?>&nbsp;€</span>
+                                <span class="text-gray-500 font-medium"><?= esc(lang('Dashboard.totalHT')) ?></span>
+                                <span class="font-bold text-gray-900"><?= fmt_money(doc_amount($f, 'total_ht', $currency), $currency['symbol']) ?></span>
                             </div>
                         </div>
                     </div>
