@@ -11,13 +11,13 @@
         </div>
     </div>
 
-    <h2 class="text-lg font-semibold text-gray-800 mb-2">Vérifiez votre boîte mail</h2>
+    <h2 class="text-lg font-semibold text-gray-800 mb-2"><?= esc(lang('Auth.checkYourInbox')) ?></h2>
     <p class="text-sm text-gray-500 mb-1">
-        Un lien d'accès a été envoyé à
+        <?= esc(lang('Auth.accessLinkSentTo')) ?>
     </p>
     <p class="text-sm font-medium text-gray-800 mb-4"><?= esc($email) ?></p>
     <p class="text-sm text-gray-400">
-        Cliquez sur le lien contenu dans l'email pour créer votre compte. Le lien est valable 24&nbsp;heures.
+        <?= lang('Auth.clickLinkToCreateAccount') ?>
     </p>
 </div>
 

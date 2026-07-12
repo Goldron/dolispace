@@ -9,9 +9,9 @@ $hasRefs         = ! empty($proposals) || ! empty($orders);
 $allowDelete     = (bool) cfg('allow_upload_delete', false);
 
 $formatSize = function(int $bytes): string {
-    if ($bytes >= 1_048_576) return number_format($bytes / 1_048_576, 1) . ' Mo';
-    if ($bytes >= 1_024)     return number_format($bytes / 1_024, 1) . ' Ko';
-    return $bytes . ' o';
+    if ($bytes >= 1_048_576) return number_format($bytes / 1_048_576, 1) . ' ' . lang('Dashboard.unitMB');
+    if ($bytes >= 1_024)     return number_format($bytes / 1_024, 1) . ' ' . lang('Dashboard.unitKB');
+    return $bytes . ' ' . lang('Dashboard.unitB');
 };
 
 $fileIcon = function(string $name): string {
@@ -34,8 +34,8 @@ $fileIcon = function(string $name): string {
 ?>
 
 <div class="mb-8">
-    <h1 class="text-xl font-semibold text-gray-900">Mes fichiers</h1>
-    <p class="mt-1 text-sm text-gray-500">Déposez et consultez vos documents.</p>
+    <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Dashboard.myFilesTitle')) ?></h1>
+    <p class="mt-1 text-sm text-gray-500"><?= esc(lang('Dashboard.depositAndViewDocs')) ?></p>
 </div>
 
 <?php if (session()->getFlashdata('error')): ?>
@@ -58,27 +58,27 @@ $fileIcon = function(string $name): string {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
             </svg>
             <div>
-                <p class="text-sm font-medium text-gray-700" id="drop-label">Cliquez ou déposez un fichier ici</p>
-                <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, image, ZIP — max <?= (int) cfg('max_upload_size', 10) ?> Mo</p>
+                <p class="text-sm font-medium text-gray-700" id="drop-label"><?= esc(lang('Dashboard.clickOrDropFile')) ?></p>
+                <p class="text-xs text-gray-400 mt-1"><?= esc(lang('Dashboard.maxFileSize', [(string) (int) cfg('max_upload_size', 10)])) ?></p>
             </div>
             <input type="file" name="file" id="file-input" class="sr-only">
         </label>
 
         <?php if ($hasRefs): ?>
         <div class="mt-4">
-            <label for="ref-select" class="block text-xs font-medium text-gray-600 mb-1">Associer à (optionnel)</label>
+            <label for="ref-select" class="block text-xs font-medium text-gray-600 mb-1"><?= esc(lang('Dashboard.associateWith')) ?></label>
             <select name="ref" id="ref-select"
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— Sans association —</option>
+                <option value=""><?= esc(lang('Dashboard.noAssociation')) ?></option>
                 <?php if (! empty($proposals)): ?>
-                <optgroup label="Devis">
+                <optgroup label="<?= esc(lang('Dashboard.proposalsNav')) ?>">
                     <?php foreach ($proposals as $p): ?>
                     <option value="proposal:<?= (int) $p['id'] ?>"><?= esc($p['ref']) ?></option>
                     <?php endforeach ?>
                 </optgroup>
                 <?php endif ?>
                 <?php if (! empty($orders)): ?>
-                <optgroup label="Commandes">
+                <optgroup label="<?= esc(lang('Dashboard.ordersNav')) ?>">
                     <?php foreach ($orders as $o): ?>
                     <option value="order:<?= (int) $o['id'] ?>"><?= esc($o['ref']) ?></option>
                     <?php endforeach ?>
@@ -98,7 +98,7 @@ $fileIcon = function(string $name): string {
             </div>
             <button type="submit"
                 class="w-full sm:w-auto shrink-0 py-1.5 px-4 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
-                Envoyer
+                <?= esc(lang('Dashboard.send')) ?>
             </button>
         </div>
     </form>
@@ -107,12 +107,12 @@ $fileIcon = function(string $name): string {
 <!-- Liste des fichiers -->
 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-gray-800">Fichiers envoyés</h2>
-        <span class="text-xs text-gray-400"><?= count($files) ?> fichier<?= count($files) > 1 ? 's' : '' ?></span>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Dashboard.filesSent')) ?></h2>
+        <span class="text-xs text-gray-400"><?= count($files) ?> <?= esc(count($files) > 1 ? lang('Dashboard.files') : lang('Dashboard.file')) ?></span>
     </div>
 
     <?php if (empty($files)): ?>
-        <div class="px-5 py-16 text-center text-sm text-gray-400">Aucun fichier envoyé pour l'instant.</div>
+        <div class="px-5 py-16 text-center text-sm text-gray-400"><?= esc(lang('Dashboard.noFilesSentYet')) ?></div>
     <?php else: ?>
         <ul class="divide-y divide-gray-100">
             <?php foreach ($files as $file): ?>
@@ -139,25 +139,25 @@ $fileIcon = function(string $name): string {
                     <div class="flex items-center gap-x-2 shrink-0">
                         <a href="<?= site_url('dashboard/uploads/' . $file['id'] . '/download') ?>"
                             class="size-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition"
-                            title="Télécharger">
+                            title="<?= esc(lang('Dashboard.download')) ?>">
                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
                             </svg>
                         </a>
                         <?php if ($allowDelete): ?>
                         <form action="<?= site_url('dashboard/uploads/' . $file['id'] . '/delete') ?>" method="POST"
-                            onsubmit="return confirm('Supprimer « <?= esc($file['original_name'], 'js') ?> » ?')">
+                            onsubmit="return confirm(<?= esc(json_encode(lang('Dashboard.confirmDeleteFile', [$file['original_name']])), 'attr') ?>)">
                             <?= csrf_field() ?>
                             <button type="submit"
                                 class="size-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
-                                title="Supprimer">
+                                title="<?= esc(lang('Dashboard.delete')) ?>">
                                 <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
                                 </svg>
                             </button>
                         </form>
                         <?php else: ?>
-                        <span class="size-8 inline-flex items-center justify-center rounded-lg text-gray-200 cursor-not-allowed" title="Suppression désactivée">
+                        <span class="size-8 inline-flex items-center justify-center rounded-lg text-gray-200 cursor-not-allowed" title="<?= esc(lang('Dashboard.deletionDisabled')) ?>">
                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
                             </svg>
@@ -171,6 +171,13 @@ $fileIcon = function(string $name): string {
 </div>
 
 <script>
+    const i18n = {
+        changeFile: <?= json_encode(lang('Dashboard.changeFile')) ?>,
+        unitMB: <?= json_encode(lang('Dashboard.unitMB')) ?>,
+        unitKB: <?= json_encode(lang('Dashboard.unitKB')) ?>,
+        unitB: <?= json_encode(lang('Dashboard.unitB')) ?>,
+    };
+
     const fileInput  = document.getElementById('file-input');
     const dropZone   = document.getElementById('drop-zone');
     const filePreview = document.getElementById('file-preview');
@@ -179,16 +186,16 @@ $fileIcon = function(string $name): string {
     const dropLabel  = document.getElementById('drop-label');
 
     function formatBytes(bytes) {
-        if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' Mo';
-        if (bytes >= 1024)    return (bytes / 1024).toFixed(1) + ' Ko';
-        return bytes + ' o';
+        if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' ' + i18n.unitMB;
+        if (bytes >= 1024)    return (bytes / 1024).toFixed(1) + ' ' + i18n.unitKB;
+        return bytes + ' ' + i18n.unitB;
     }
 
     function showPreview(file) {
         fileName.textContent = file.name;
         fileSize.textContent = formatBytes(file.size);
         filePreview.classList.remove('hidden');
-        dropLabel.textContent = 'Changer de fichier';
+        dropLabel.textContent = i18n.changeFile;
     }
 
     fileInput.addEventListener('change', () => {

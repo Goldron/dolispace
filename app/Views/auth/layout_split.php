@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'Espace client') ?></title>
+    <title><?= esc($title ?? lang('Auth.defaultTitle')) ?></title>
     <link rel="icon" type="image/png" href="<?= asset_or_default('favicon-96x96.png') ?>" sizes="96x96">
     <link rel="shortcut icon" href="<?= asset_or_default('favicon.ico') ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= asset_or_default('apple-touch-icon.png') ?>">
@@ -28,7 +28,7 @@
     <div class="hidden md:block md:w-[60%] relative overflow-hidden bg-blue-900">
         <img src="<?= base_url(versioned_asset(cfg_url('background_url', '/images/default/background.jpg'))) ?>" alt="" class="absolute inset-0 w-full h-full object-cover<?= cfg('background_animate', 'true') === 'true' ? ' animate-kenburns' : '' ?>">
         <?php if (cfg('label_url')): ?>
-            <img src="<?= base_url(versioned_asset(cfg('label_url'))) ?>" alt="Label" class="absolute bottom-4 right-4 h-25 w-auto z-10">
+            <img src="<?= base_url(versioned_asset(cfg('label_url'))) ?>" alt="<?= esc(lang('Auth.labelAlt')) ?>" class="absolute bottom-4 right-4 h-25 w-auto z-10">
         <?php endif ?>
     </div>
 
@@ -44,9 +44,9 @@
 
             <!-- Accroche -->
             <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-900 mb-2">Votre espace client sécurisé</h2>
+                <h2 class="text-xl font-bold text-gray-900 mb-2"><?= esc(lang('Auth.tagline')) ?></h2>
                 <p class="text-sm text-gray-500 leading-relaxed">
-                    Accédez à vos factures, devis et commandes en toute sécurité depuis un seul espace dédié.
+                    <?= esc(lang('Auth.taglineDescription')) ?>
                 </p>
             </div>
 

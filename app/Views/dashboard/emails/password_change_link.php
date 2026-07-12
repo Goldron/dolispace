@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmer votre nouveau mot de passe</title>
+    <title><?= esc(lang('Emails.confirmPasswordTitle')) ?></title>
     <style>
         body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 40px 16px; }
         .container { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 40px; border: 1px solid #e5e7eb; }
@@ -19,21 +19,21 @@
     <div class="container">
         <div class="logo"><?php if ($logo): ?><img src="<?= $logo ?>" alt="<?= esc(cfg('company_name', '')) ?>" style="width:140px;height:auto;display:block;margin:0 auto;"><?php endif ?></div>
 
-        <h1>Confirmez votre nouveau mot de passe</h1>
+        <h1><?= esc(lang('Emails.confirmNewPasswordHeading')) ?></h1>
 
-        <p>Bonjour,</p>
-        <p>Vous avez demandé à modifier votre mot de passe sur votre espace client.</p>
-        <p>Cliquez sur le bouton ci-dessous pour confirmer ce changement. Le lien est valable <strong>1&nbsp;heure</strong>.</p>
+        <p><?= esc(lang('Emails.hello')) ?></p>
+        <p><?= esc(lang('Emails.passwordChangeRequested')) ?></p>
+        <p><?= lang('Emails.clickButtonToConfirmChange') ?></p>
 
-        <a href="<?= esc($confirmUrl) ?>" class="btn">Confirmer mon nouveau mot de passe</a>
+        <a href="<?= esc($confirmUrl) ?>" class="btn"><?= esc(lang('Emails.confirmMyPasswordBtn')) ?></a>
 
-        <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :</p>
+        <p><?= lang('Emails.ifButtonDoesNotWork') ?></p>
         <p class="link"><?= esc($confirmUrl) ?></p>
 
-        <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email. Votre mot de passe actuel ne sera pas modifié.</p>
+        <p><?= esc(lang('Emails.ignoreIfNotRequestedPassword')) ?></p>
 
         <div class="footer">
-            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+            <p><?= esc(lang('Emails.automatedEmailFooter')) ?></p>
         </div>
     </div>
 </body>

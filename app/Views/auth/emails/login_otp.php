@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code de connexion</title>
+    <title><?= esc(lang('Emails.otpEmailTitle')) ?></title>
     <style>
         body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 40px 16px; }
         .container { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 40px; border: 1px solid #e5e7eb; }
@@ -20,18 +20,18 @@
             <?php else: ?>
             <span><?= esc(cfg('company_name', '')) ?></span>
         <?php endif ?>
-        <h1>Votre code de connexion</h1>
+        <h1><?= esc(lang('Emails.otpEmailHeading')) ?></h1>
 
-        <p>Bonjour,</p>
-        <p>Vous avez demandé à vous connecter à votre espace client avec un code à usage unique.</p>
-        <p>Saisissez le code ci-dessous. Il est valable <strong>15&nbsp;minutes</strong>.</p>
+        <p><?= esc(lang('Emails.hello')) ?></p>
+        <p><?= esc(lang('Emails.otpEmailIntro')) ?></p>
+        <p><?= lang('Emails.otpEmailInstructions') ?></p>
 
         <span class="otp"><?= esc($otp) ?></span>
 
-        <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+        <p><?= esc(lang('Emails.ignoreIfNotRequested')) ?></p>
 
         <div class="footer">
-            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+            <p><?= esc(lang('Emails.automatedEmailFooter')) ?></p>
         </div>
     </div>
 </body>

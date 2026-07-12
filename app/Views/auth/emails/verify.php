@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accès à votre espace client</title>
+    <title><?= esc(lang('Emails.verifyEmailTitle')) ?></title>
     <style>
         body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 40px 16px; }
         .container { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 40px; border: 1px solid #e5e7eb; }
@@ -21,21 +21,21 @@
             <?php else: ?>
             <span><?= esc(cfg('company_name', '')) ?></span>
         <?php endif ?>
-        <h1>Validez votre accès</h1>
+        <h1><?= esc(lang('Emails.validateAccess')) ?></h1>
 
-        <p>Bonjour,</p>
+        <p><?= esc(lang('Emails.hello')) ?></p>
         <p>
-            Nous avons reçu une demande d'accès à l'espace client pour l'adresse
+            <?= esc(lang('Emails.accessRequestReceived')) ?>
             <strong><?= esc($email) ?></strong>.
         </p>
-        <p>Cliquez sur le bouton ci-dessous pour créer votre compte. Ce lien est valable <strong>24&nbsp;heures</strong>.</p>
+        <p><?= lang('Emails.clickButtonToCreateAccount') ?></p>
 
-        <a href="<?= esc($link) ?>" class="btn">Créer mon compte</a>
+        <a href="<?= esc($link) ?>" class="btn"><?= esc(lang('Emails.createMyAccountBtn')) ?></a>
 
-        <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+        <p><?= esc(lang('Emails.ignoreIfNotRequested')) ?></p>
 
         <div class="footer">
-            <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur&nbsp;:</p>
+            <p><?= lang('Emails.ifButtonDoesNotWork') ?></p>
             <p class="url"><?= esc($link) ?></p>
         </div>
     </div>

@@ -36,7 +36,7 @@ class AuthController extends BaseController
         $email = strtolower(trim($this->request->getPost('email') ?? ''));
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->to('auth')->with('error', 'Adresse email invalide.');
+            return redirect()->to('auth')->with('error', lang('Auth.invalidEmail'));
         }
 
         $user = $this->users->findByEmail($email);
@@ -60,7 +60,7 @@ class AuthController extends BaseController
             // Un compte local est déjà rattaché à ce tiers → orienter vers le bon email
             $existing = $this->users->findByPartyId($partyId);
             if ($existing) {
-                return redirect()->to('auth')->with('error', 'Ce compte existe déjà. Veuillez vous connecter avec l\'email de votre profil.');
+                return redirect()->to('auth')->with('error', lang('Auth.accountAlreadyExists'));
             }
 
             $emailKey = 'pending_lock_' . hash('sha256', $email);
@@ -155,20 +155,21 @@ class AuthController extends BaseController
         $user = $this->users->findByEmail($email);
 
         if (! $user || ! password_verify($password, $user['password'])) {
-            return redirect()->to('auth/password')->with('error', 'Mot de passe incorrect.');
+            return redirect()->to('auth/password')->with('error', lang('Auth.incorrectPassword'));
         }
 
         if (! $user['is_active']) {
-            return redirect()->to('auth/password')->with('error', 'Votre compte est désactivé. Contactez-nous.');
+            return redirect()->to('auth/password')->with('error', lang('Auth.accountDisabled'));
         }
 
         session()->remove('auth_email');
         session()->set([
-            'user_id'    => $user['id'],
-            'user_name'  => trim(($user['first_name'] ?? '') . ' ' . $user['name']),
-            'user_email' => $user['email'],
-            'party_id'   => $user['party_id'],
-            'logged_in'  => true,
+            'user_id'     => $user['id'],
+            'user_name'   => trim(($user['first_name'] ?? '') . ' ' . $user['name']),
+            'user_email'  => $user['email'],
+            'user_locale' => $user['locale'] ?? null,
+            'party_id'    => $user['party_id'],
+            'logged_in'   => true,
         ]);
 
         $this->users->recordLogin($user['id'], $this->request->getIPAddress());
@@ -184,7 +185,7 @@ class AuthController extends BaseController
 
         if (! $data) {
             return view('auth/denied', [
-                'message' => 'Le lien de validation est invalide ou a expiré. Veuillez recommencer.',
+                'message' => lang('Auth.invalidOrExpiredLink'),
             ]);
         }
 
@@ -202,7 +203,7 @@ class AuthController extends BaseController
         $data  = cache()->get('pending_' . hash('sha256', $token));
 
         if (! $data) {
-            return redirect()->to('auth')->with('error', 'Session expirée. Veuillez recommencer.');
+            return redirect()->to('auth')->with('error', lang('Auth.sessionExpired'));
         }
 
         $rules = [
@@ -250,7 +251,7 @@ class AuthController extends BaseController
 
             if (! $userId) {
                 log_message('error', '[doRegister] insert failed for ' . $data['email'] . ': ' . implode(', ', $this->users->errors()));
-                return redirect()->to('auth')->with('error', 'Impossible de créer le compte. Veuillez réessayer.');
+                return redirect()->to('auth')->with('error', lang('Auth.accountCreationFailed'));
             }
         }
 
@@ -282,13 +283,13 @@ class AuthController extends BaseController
         $user = $this->users->findByEmail($email);
 
         if (! $user || ! $user['is_active']) {
-            return redirect()->to('auth/password')->with('error', 'Impossible d\'envoyer le code.');
+            return redirect()->to('auth/password')->with('error', lang('Auth.unableToSendCode'));
         }
 
         $lockKey = 'login_otp_lock_' . hash('sha256', $email);
 
         if (cache()->get($lockKey)) {
-            return redirect()->to('auth/otp')->with('error', 'Un code a déjà été envoyé. Veuillez patienter avant d\'en demander un nouveau.');
+            return redirect()->to('auth/otp')->with('error', lang('Auth.codeAlreadySent'));
         }
 
         $logo = logo_for_email();
@@ -301,7 +302,7 @@ class AuthController extends BaseController
 
         $emailSvc = make_email();
         $emailSvc->setTo($email);
-        $emailSvc->setSubject('Votre code de connexion — ' . cfg('company_name'));
+        $emailSvc->setSubject(lang('Emails.loginCodeSubject') . ' — ' . cfg('company_name'));
         $emailSvc->setMessage(view('auth/emails/login_otp', ['otp' => $otp, 'logo' => $logo]));
         $emailSvc->send();
 
@@ -334,13 +335,13 @@ class AuthController extends BaseController
         $hash   = cache()->get($otpKey);
 
         if (! $hash || ! password_verify($otp, $hash)) {
-            return redirect()->to('auth/otp')->with('error', 'Code incorrect ou expiré.');
+            return redirect()->to('auth/otp')->with('error', lang('Auth.incorrectOrExpiredCode'));
         }
 
         $user = $this->users->findByEmail($email);
 
         if (! $user || ! $user['is_active']) {
-            return redirect()->to('auth')->with('error', 'Compte introuvable ou désactivé.');
+            return redirect()->to('auth')->with('error', lang('Auth.accountNotFoundOrDisabled'));
         }
 
         cache()->delete($otpKey);
@@ -348,11 +349,12 @@ class AuthController extends BaseController
 
         session()->remove('auth_email');
         session()->set([
-            'user_id'    => $user['id'],
-            'user_name'  => trim(($user['first_name'] ?? '') . ' ' . $user['name']),
-            'user_email' => $user['email'],
-            'party_id'   => $user['party_id'],
-            'logged_in'  => true,
+            'user_id'     => $user['id'],
+            'user_name'   => trim(($user['first_name'] ?? '') . ' ' . $user['name']),
+            'user_email'  => $user['email'],
+            'user_locale' => $user['locale'] ?? null,
+            'party_id'    => $user['party_id'],
+            'logged_in'   => true,
         ]);
 
         $this->users->recordLogin($user['id'], $this->request->getIPAddress());
@@ -392,7 +394,7 @@ class AuthController extends BaseController
         $link  = site_url('auth/verify/' . $token);
         $email = make_email();
         $email->setTo($to);
-        $email->setSubject('Accès à votre espace client ' . cfg('company_name'));
+        $email->setSubject(lang('Emails.accessSubject') . ' — ' . cfg('company_name'));
         $email->setMessage(view('auth/emails/verify', [
             'link'  => $link,
             'email' => $to,

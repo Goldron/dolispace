@@ -10,16 +10,16 @@
         </div>
     </div>
 
-    <h2 class="text-lg font-semibold text-gray-800 mb-2">Maintenance en cours</h2>
+    <h2 class="text-lg font-semibold text-gray-800 mb-2"><?= esc(lang('Auth.maintenanceTitle')) ?></h2>
     <p class="text-sm text-gray-500">
-        Le service est temporairement indisponible. Merci de réessayer dans quelques instants.
+        <?= esc(lang('Auth.maintenanceMessage')) ?>
     </p>
 
     <a href="<?= site_url('auth') ?>" class="mt-6 inline-flex items-center gap-x-1.5 text-sm text-blue-600 hover:underline">
         <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
         </svg>
-        Réessayer
+        <?= esc(lang('Auth.retry')) ?>
     </a>
 </div>
 

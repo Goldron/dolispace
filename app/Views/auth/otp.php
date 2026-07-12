@@ -2,9 +2,9 @@
 <?= $this->section('content') ?>
 <?php $email ??= ''; ?>
 
-<h2 class="text-lg font-semibold text-gray-800 mb-1">Code de connexion</h2>
+<h2 class="text-lg font-semibold text-gray-800 mb-1"><?= esc(lang('Auth.otpTitle')) ?></h2>
 <p class="text-sm text-gray-500 mb-6">
-    Un code à 6 chiffres a été envoyé à <span class="font-medium text-gray-700"><?= esc($email) ?></span>. Il est valable <?= (int) cfg('otp_ttl', 900) / 60 ?>&nbsp;minutes.
+    <?= esc(lang('Auth.otpSentToPrefix')) ?> <span class="font-medium text-gray-700"><?= esc($email) ?></span>. <?= lang('Auth.otpValidMinutes', [(string) ((int) cfg('otp_ttl', 900) / 60)]) ?>
 </p>
 
 <?php if (session()->getFlashdata('error')): ?>
@@ -19,7 +19,7 @@
 <?= form_open('auth/verify-otp') ?>
 
     <div class="mb-5">
-        <label for="otp" class="block text-sm font-medium text-gray-700 mb-1.5">Code de vérification</label>
+        <label for="otp" class="block text-sm font-medium text-gray-700 mb-1.5"><?= esc(lang('Auth.otpCodeLabel')) ?></label>
         <input
             type="text"
             id="otp"
@@ -35,14 +35,14 @@
     </div>
 
     <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer">
-        Se connecter
+        <?= esc(lang('Auth.signIn')) ?>
     </button>
 
 <?= form_close() ?>
 
 <div class="mt-5 text-center">
     <a href="<?= site_url('auth/password') ?>" class="text-sm text-gray-400 hover:text-gray-600 underline transition">
-        Revenir à la connexion par mot de passe
+        <?= esc(lang('Auth.backToPassword')) ?>
     </a>
 </div>
 

@@ -23,7 +23,7 @@ class UploadsController extends BaseController
     public function index(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $partyId = (int) session()->get('party_id');
@@ -41,7 +41,7 @@ class UploadsController extends BaseController
     public function upload(): \CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         $partyId = (int) session()->get('party_id');
@@ -53,32 +53,32 @@ class UploadsController extends BaseController
         $file = $this->request->getFile('file');
 
         if (! $file || ! $file->isValid()) {
-            $error = $file ? $file->getErrorString() : 'Aucun fichier reçu.';
+            $error = $file ? $file->getErrorString() : lang('Dashboard.noFileReceived');
             return redirect()->to('dashboard/uploads')->with('error', $error);
         }
 
         if ($file->hasMoved()) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Fichier déjà traité.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileAlreadyProcessed'));
         }
 
         if ($file->getSizeByUnit('mb') > $maxMb) {
-            return redirect()->to('dashboard/uploads')->with('error', "Le fichier dépasse la taille maximale autorisée ({$maxMb} Mo).");
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileTooLarge', [(string) $maxMb]));
         }
 
         $ext = strtolower($file->getClientExtension());
         if (! in_array($ext, $allowed, true)) {
-            return redirect()->to('dashboard/uploads')->with('error', "Extension « .{$ext} » non autorisée.");
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.extensionNotAllowed', [$ext]));
         }
 
         $serverMime = $file->getMimeType();
         if (in_array(strtolower((string) $serverMime), self::BLOCKED_MIMES, true)) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Type de fichier non autorisé.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileTypeNotAllowed'));
         }
 
         $scan = (new Clamdscan())->scan($file->getTempName());
         if (! $scan['clean']) {
-            $reason = $scan['virus'] ?? $scan['error'] ?? 'Menace détectée.';
-            return redirect()->to('dashboard/uploads')->with('error', 'Fichier refusé : ' . $reason);
+            $reason = $scan['virus'] ?? $scan['error'] ?? lang('Dashboard.threatDetected');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileRejected', [$reason]));
         }
 
         $api         = new DolibarrApi();
@@ -138,31 +138,31 @@ class UploadsController extends BaseController
             'ref_folder' => $refFolder ?: null,
         ]);
 
-        return redirect()->to('dashboard/uploads')->with('success', 'Fichier envoyé avec succès.');
+        return redirect()->to('dashboard/uploads')->with('success', lang('Dashboard.fileSentSuccess'));
     }
 
     // Télécharge un fichier uploadé (appartenance vérifiée par utilisateur)
     public function download(int $id): \CodeIgniter\HTTP\Response|\CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         if (! cfg('allow_upload_download', true)) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Le téléchargement de fichiers est désactivé.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.downloadDisabled'));
         }
 
         $userId = (int) session()->get('user_id');
         $record = model(UploadModel::class)->findOwnedBy($id, $userId);
 
         if (! $record) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Fichier introuvable.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileNotFound'));
         }
 
         $path = $this->safePath($record['party_folder'], $record['ref_folder'] ?? '', $record['stored_name']);
 
         if ($path === null || ! is_file($path)) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Fichier physique introuvable.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.physicalFileNotFound'));
         }
 
         $mime     = mime_content_type($path) ?: 'application/octet-stream';
@@ -180,11 +180,11 @@ class UploadsController extends BaseController
     public function delete(int $id): \CodeIgniter\HTTP\RedirectResponse
     {
         if (! cfg('uploads_page_enabled', true)) {
-            return redirect()->to('dashboard')->with('error', 'Cette fonctionnalité est désactivée.');
+            return redirect()->to('dashboard')->with('error', lang('Dashboard.featureDisabled'));
         }
 
         if (! cfg('allow_upload_delete', false)) {
-            return redirect()->to('dashboard/uploads')->with('error', 'La suppression de fichiers est désactivée.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.deletionDisabledMsg'));
         }
 
         $userId  = (int) session()->get('user_id');
@@ -192,7 +192,7 @@ class UploadsController extends BaseController
         $record  = $uploads->findOwnedBy($id, $userId);
 
         if (! $record) {
-            return redirect()->to('dashboard/uploads')->with('error', 'Fichier introuvable.');
+            return redirect()->to('dashboard/uploads')->with('error', lang('Dashboard.fileNotFound'));
         }
 
         $path = $this->safePath($record['party_folder'], $record['ref_folder'] ?? '', $record['stored_name']);
@@ -203,7 +203,7 @@ class UploadsController extends BaseController
 
         $uploads->delete($id);
 
-        return redirect()->to('dashboard/uploads')->with('success', 'Fichier supprimé.');
+        return redirect()->to('dashboard/uploads')->with('success', lang('Dashboard.fileDeleted'));
     }
 
     // Retourne le chemin réel uniquement s'il est dans UPLOAD_DIR (anti path traversal)
