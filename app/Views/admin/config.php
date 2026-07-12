@@ -23,46 +23,10 @@ $featureLabels = [
 $configByKey = array_column($config, null, 'config_key');
 $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLabels[$row['config_key']])));
 
-// Traductions des descriptions des clés protégées (ConfigSeeder) ; les clés ajoutées
-// manuellement par l'admin ("Ajouter une clé") gardent leur description telle quelle
-$descriptionKeys = [
-    'company_name'                     => 'Admin.descCompanyName',
-    'logo_url'                         => 'Admin.descLogoUrl',
-    'background_url'                   => 'Admin.descBackgroundUrl',
-    'background_animate'               => 'Admin.descBackgroundAnimate',
-    'label_url'                        => 'Admin.descLabelUrl',
-    'time_cache'                       => 'Admin.descTimeCache',
-    'uploads_page_enabled'             => 'Admin.descUploadsPageEnabled',
-    'allow_upload_download'            => 'Admin.descAllowUploadDownload',
-    'allow_upload_delete'              => 'Admin.descAllowUploadDelete',
-    'max_upload_size'                  => 'Admin.descMaxUploadSize',
-    'allowed_upload_types'             => 'Admin.descAllowedUploadTypes',
-    'otp_ttl'                          => 'Admin.descOtpTtl',
-    'otp_rate_limit'                   => 'Admin.descOtpRateLimit',
-    'clamdscan'                        => 'Admin.descClamdscan',
-    'clamdscan_path'                   => 'Admin.descClamdscanPath',
-    'dolibarr_api_url'                 => 'Admin.descDolibarrApiUrl',
-    'dolibarr_api_token'               => 'Admin.descDolibarrApiToken',
-    'show_drafts'                      => 'Admin.descShowDrafts',
-    'rebuild_pdf_on_failure'           => 'Admin.descRebuildPdfOnFailure',
-    'expedition_enabled'               => 'Admin.descExpeditionEnabled',
-    'rebuild_shipment_pdf_on_failure'  => 'Admin.descRebuildShipmentPdfOnFailure',
-    'certificatsclients_enabled'       => 'Admin.descCertificatsclientsEnabled',
-    'search_contact_first'             => 'Admin.descSearchContactFirst',
-    'commande_enabled'                 => 'Admin.descCommandeEnabled',
-    'propal_enabled'                   => 'Admin.descPropalEnabled',
-    'facture_enabled'                  => 'Admin.descFactureEnabled',
-    'vat_field_enabled'                => 'Admin.descVatFieldEnabled',
-    'smtp_host'                        => 'Admin.descSmtpHost',
-    'smtp_port'                        => 'Admin.descSmtpPort',
-    'smtp_crypto'                      => 'Admin.descSmtpCrypto',
-    'smtp_user'                        => 'Admin.descSmtpUser',
-    'smtp_pass'                        => 'Admin.descSmtpPass',
-    'smtp_from_email'                  => 'Admin.descSmtpFromEmail',
-];
-$describe = fn (array $row): string => isset($descriptionKeys[$row['config_key']])
-    ? lang($descriptionKeys[$row['config_key']])
-    : (string) ($row['description'] ?? '');
+// La colonne description stocke soit une clé de langue (clés protégées du ConfigSeeder,
+// ex: "Admin.descCompanyName"), soit du texte brut (clés ajoutées manuellement par l'admin) ;
+// lang() renvoie la chaîne telle quelle si elle ne correspond à aucune traduction.
+$describe = fn (array $row): string => lang((string) ($row['description'] ?? ''));
 ?>
 
 <div class="mb-8">
@@ -84,7 +48,7 @@ $describe = fn (array $row): string => isset($descriptionKeys[$row['config_key']
             ?>
             <li class="flex items-center justify-between px-5 py-3">
                 <div>
-                    <p class="text-sm font-medium text-gray-800"><?= esc($label) ?></p>
+                    <p class="text-sm font-medium text-gray-800"><?= esc((string) $label) ?></p>
                     <?php if (! empty($row['description'])): ?>
                         <p class="text-xs text-gray-400"><?= esc($describe($row)) ?></p>
                     <?php endif ?>

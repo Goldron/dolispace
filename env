@@ -31,9 +31,9 @@
 # BASE DE DONNÉES
 #--------------------------------------------------------------------
 
-database.default.DBDriver = SQLite3
-database.default.database = database.db
-database.default.DBPrefix = coop_
+# database.default.DBDriver = SQLite3
+# database.default.database = database.db
+# database.default.DBPrefix = coop_
 
 # Alternative : MySQL / MariaDB
 # database.default.DBDriver = MySQLi
