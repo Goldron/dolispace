@@ -1,5 +1,6 @@
 # Dolispace
 
+![PHP](https://img.shields.io/badge/PHP-%5E8.2-777BB4?logo=php&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-PHPUnit-6C4675)
 ![License](https://img.shields.io/github/license/Goldron/dolispace)
 ![Release](https://img.shields.io/github/v/release/Goldron/dolispace)
@@ -7,6 +8,8 @@
 ![Dolispace](.github/images/dolispace.png)
 
 A modern web customer portal allowing customers to view their quotes, orders, shipments, and invoices through an integration with the [Dolibarr](https://www.dolibarr.org) REST API.
+
+This application requires web access to Dolibarr with the REST module enabled. You will also need an API key generated from Dolibarr to authenticate exchanges with the application.
 
 The application manages its own user accounts: no account needs to be created or administered in Dolibarr. It never exposes Dolibarr directly and communicates exclusively through its REST API.
 
@@ -23,13 +26,12 @@ It can also be deployed on a server independent from the one hosting Dolibarr, p
 
 - Passwordless login for new accounts (email verification + linking to a Dolibarr third party)
 - Password + OTP login for existing accounts
-- View quotes, orders, shipments, certificates, and invoices with PDF download
-- Quotes, orders, invoices, shipments, and certificates can be individually enabled/disabled  
-  (`admin/config` → "Features" card), automatically hidden if the corresponding Dolibarr module  
-  is not detected
+- View quotes, orders, shipments, certificates, and invoices with PDF download, multi-currency support
+- Quotes, orders, invoices, shipments, certificates
 - File upload area
-- Account management (email, password, contact details, intra-community VAT number verification via VIES)
-- Administration interface: application configuration, user management (search, deletion), activity logs, uploaded files, Dolibarr API diagnostics, SMTP sending test, etc.
+- User account management
+- Multilingual interface (French / English)
+- Administration interface: application configuration, user management, activity logs, uploaded files, Dolibarr API diagnostics, SMTP sending test, etc...
 
 ## Preview
 

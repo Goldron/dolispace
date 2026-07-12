@@ -1,5 +1,6 @@
 # Dolispace
 
+![PHP](https://img.shields.io/badge/PHP-%5E8.2-777BB4?logo=php&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-PHPUnit-6C4675)
 ![License](https://img.shields.io/github/license/Goldron/dolispace)
 ![Release](https://img.shields.io/github/v/release/Goldron/dolispace)
@@ -7,6 +8,8 @@
 ![Dolispace](.github/images/dolispace.png)
 
 Espace client web moderne permettant aux clients de consulter leurs devis, commandes, expéditions et factures grâce à une intégration avec l’API REST de [Dolibarr](https://www.dolibarr.org).
+
+Cette application nécessite un accès à Dolibarr depuis le web avec le module REST activé. Vous devez également disposer d’une clé API générée depuis Dolibarr afin d’authentifier les échanges avec l’application.
 
 L’application gère ses propres comptes utilisateurs : aucun compte n’a besoin d’être créé ou administré dans Dolibarr. Elle n’expose jamais Dolibarr directement et communique uniquement avec son API REST.
 
@@ -23,12 +26,12 @@ Elle peut également être déployée sur un serveur indépendant de celui hébe
 
 - Connexion sans mot de passe pour les nouveaux comptes (vérification email + rattachement à un tiers Dolibarr)
 - Connexion par mot de passe + OTP pour les comptes existants
-- Consultation des devis, commandes, expéditions, certificats et factures avec téléchargement PDF
-- Devis, commandes, factures, expéditions et certificats activables/désactivables individuellement
+- Consultation des devis, commandes, expéditions, certificats et factures avec téléchargement PDF, gestion multidevise
+- Devis, commandes, factures, expéditions, certificats
 - Espace de dépôt de fichiers (uploads)
-- Gestion du compte (email, mot de passe, coordonnées, TVA intracommunautaire via VIES)
-- Interface d'administration : configuration de l'application, gestion des utilisateurs (recherche,
-  suppression), journaux d'activité, fichiers uploadés, diagnostics API Dolibarr, test d'envoi SMTP, etc...
+- Gestion du compte utilisateur
+- Interface multilingue (français / anglais)
+- Interface d'administration : configuration de l'application, gestion des utilisateurs, journaux d'activité, fichiers uploadés, diagnostics API Dolibarr, test d'envoi SMTP, etc...
 
 ## Aperçu
 
