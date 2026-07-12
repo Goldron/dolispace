@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration — <?= esc((string) cfg('company_name')) ?></title>
+    <title><?= esc(lang('Admin.heading')) ?> — <?= esc((string) cfg('company_name')) ?></title>
     <link rel="icon" type="image/png" href="<?= asset_or_default('favicon-96x96.png') ?>" sizes="96x96">
     <link rel="shortcut icon" href="<?= asset_or_default('favicon.ico') ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= asset_or_default('apple-touch-icon.png') ?>">
@@ -16,13 +16,13 @@
         <nav class="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16">
             <div class="flex items-center gap-x-3">
                 <img src="<?= base_url(versioned_asset(cfg_url('logo_url', '/images/default/logo.svg'))) ?>" alt="Logo" class="h-7 w-auto">
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Admin</span>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest"><?= esc(lang('Admin.badge')) ?></span>
             </div>
             <div class="flex items-center gap-x-6">
                 <nav class="flex items-center gap-x-1">
                     <?php
                     $currentUri = ltrim(str_replace(site_url(), '', current_url()), '/');
-                    $navLinks   = [admin_url() => 'Tableau de bord', admin_url('status') => 'État du système', admin_url('config') => 'Configuration'];
+                    $navLinks   = [admin_url() => lang('Admin.navDashboard'), admin_url('status') => lang('Admin.navStatus'), admin_url('config') => lang('Admin.navConfig')];
                     foreach ($navLinks as $uri => $label):
                         $active = $currentUri === $uri;
                     ?>
@@ -44,11 +44,30 @@
                     </button>
 
                     <div class="hs-dropdown-menu hs-dropdown-open:opacity-100 transition-[opacity,margin] duration-150 opacity-0 hidden min-w-40 bg-white shadow-md rounded-xl border border-gray-200 p-1 mt-2 inset-e-0 z-10">
+                        <?php $currentAdminLocale = service('request')->getLocale(); ?>
+                        <p class="px-3 pt-2 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wide"><?= esc(lang('Dashboard.language')) ?></p>
+                        <a href="<?= site_url(admin_url('locale/fr')) ?>" class="flex items-center justify-between gap-x-3 py-2 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
+                            <?= esc(lang('Dashboard.languageFr')) ?>
+                            <?php if ($currentAdminLocale === 'fr'): ?>
+                                <svg class="size-4 shrink-0 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                </svg>
+                            <?php endif ?>
+                        </a>
+                        <a href="<?= site_url(admin_url('locale/en')) ?>" class="flex items-center justify-between gap-x-3 py-2 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
+                            <?= esc(lang('Dashboard.languageEn')) ?>
+                            <?php if ($currentAdminLocale === 'en'): ?>
+                                <svg class="size-4 shrink-0 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                </svg>
+                            <?php endif ?>
+                        </a>
+                        <div class="my-1 border-t border-gray-100"></div>
                         <a href="<?= site_url(admin_url('logout')) ?>" class="flex items-center gap-x-3 py-2 px-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition">
                             <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/>
                             </svg>
-                            Déconnexion
+                            <?= esc(lang('Dashboard.logout')) ?>
                         </a>
                     </div>
                 </div>
@@ -81,7 +100,7 @@
     </main>
 
     <footer class="max-w-7xl mx-auto px-4 md:px-6 py-4 text-center text-xs text-gray-400">
-        © <?= date('Y') ?> <?= esc((string) cfg('company_name')) ?> — Administration
+        © <?= date('Y') ?> <?= esc((string) cfg('company_name')) ?> — <?= esc(lang('Admin.footerSuffix')) ?>
     </footer>
 
 </body>

@@ -40,6 +40,7 @@ $routes->get(admin_url('logout'), 'AdminController::logout');
 
 $routes->group(admin_url(), ['filter' => 'admin'], static function ($routes) {
     $routes->get('/',                      'AdminController::index');
+    $routes->get('locale/(:segment)',      'AdminController::setLocale/$1');
     $routes->post('users/(:num)/delete',   'AdminController::deleteUser/$1');
     $routes->post('users/clear',           'AdminController::clearUsers');
     $routes->post('logs/clear',            'AdminController::clearLogs');

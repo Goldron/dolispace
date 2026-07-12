@@ -14,26 +14,67 @@ $imgSrc = static fn (string $path): string => esc(versioned_asset($path));
 
 // Fonctionnalités mises en évidence en tête de page (toggles des modules Dolibarr optionnels)
 $featureLabels = [
-    'expedition_enabled'         => 'Expéditions',
-    'certificatsclients_enabled' => 'Certificats clients',
-    'commande_enabled'           => 'Commandes',
-    'propal_enabled'             => 'Devis / Propositions',
-    'facture_enabled'            => 'Factures',
+    'expedition_enabled'         => lang('Admin.featureShipments'),
+    'certificatsclients_enabled' => lang('Admin.featureCertificates'),
+    'commande_enabled'           => lang('Admin.featureOrders'),
+    'propal_enabled'             => lang('Admin.featureProposals'),
+    'facture_enabled'            => lang('Admin.featureInvoices'),
 ];
 $configByKey = array_column($config, null, 'config_key');
 $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLabels[$row['config_key']])));
+
+// Traductions des descriptions des clés protégées (ConfigSeeder) ; les clés ajoutées
+// manuellement par l'admin ("Ajouter une clé") gardent leur description telle quelle
+$descriptionKeys = [
+    'company_name'                     => 'Admin.descCompanyName',
+    'logo_url'                         => 'Admin.descLogoUrl',
+    'background_url'                   => 'Admin.descBackgroundUrl',
+    'background_animate'               => 'Admin.descBackgroundAnimate',
+    'label_url'                        => 'Admin.descLabelUrl',
+    'time_cache'                       => 'Admin.descTimeCache',
+    'uploads_page_enabled'             => 'Admin.descUploadsPageEnabled',
+    'allow_upload_download'            => 'Admin.descAllowUploadDownload',
+    'allow_upload_delete'              => 'Admin.descAllowUploadDelete',
+    'max_upload_size'                  => 'Admin.descMaxUploadSize',
+    'allowed_upload_types'             => 'Admin.descAllowedUploadTypes',
+    'otp_ttl'                          => 'Admin.descOtpTtl',
+    'otp_rate_limit'                   => 'Admin.descOtpRateLimit',
+    'clamdscan'                        => 'Admin.descClamdscan',
+    'clamdscan_path'                   => 'Admin.descClamdscanPath',
+    'dolibarr_api_url'                 => 'Admin.descDolibarrApiUrl',
+    'dolibarr_api_token'               => 'Admin.descDolibarrApiToken',
+    'show_drafts'                      => 'Admin.descShowDrafts',
+    'rebuild_pdf_on_failure'           => 'Admin.descRebuildPdfOnFailure',
+    'expedition_enabled'               => 'Admin.descExpeditionEnabled',
+    'rebuild_shipment_pdf_on_failure'  => 'Admin.descRebuildShipmentPdfOnFailure',
+    'certificatsclients_enabled'       => 'Admin.descCertificatsclientsEnabled',
+    'search_contact_first'             => 'Admin.descSearchContactFirst',
+    'commande_enabled'                 => 'Admin.descCommandeEnabled',
+    'propal_enabled'                   => 'Admin.descPropalEnabled',
+    'facture_enabled'                  => 'Admin.descFactureEnabled',
+    'vat_field_enabled'                => 'Admin.descVatFieldEnabled',
+    'smtp_host'                        => 'Admin.descSmtpHost',
+    'smtp_port'                        => 'Admin.descSmtpPort',
+    'smtp_crypto'                      => 'Admin.descSmtpCrypto',
+    'smtp_user'                        => 'Admin.descSmtpUser',
+    'smtp_pass'                        => 'Admin.descSmtpPass',
+    'smtp_from_email'                  => 'Admin.descSmtpFromEmail',
+];
+$describe = fn (array $row): string => isset($descriptionKeys[$row['config_key']])
+    ? lang($descriptionKeys[$row['config_key']])
+    : (string) ($row['description'] ?? '');
 ?>
 
 <div class="mb-8">
-    <h1 class="text-xl font-semibold text-gray-900">Configuration</h1>
-    <p class="mt-1 text-sm text-gray-500">Paramètres de l'application stockés en base de données.</p>
+    <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Admin.navConfig')) ?></h1>
+    <p class="mt-1 text-sm text-gray-500"><?= esc(lang('Admin.configSubtitle')) ?></p>
 </div>
 
 <!-- Fonctionnalités -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Fonctionnalités</h2>
-        <p class="mt-0.5 text-xs text-gray-400">Active ou désactive les modules Dolibarr optionnels de l'espace client.</p>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.features')) ?></h2>
+        <p class="mt-0.5 text-xs text-gray-400"><?= esc(lang('Admin.featuresSubtitle')) ?></p>
     </div>
     <ul class="divide-y divide-gray-100">
         <?php foreach ($featureLabels as $key => $label): ?>
@@ -45,7 +86,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                 <div>
                     <p class="text-sm font-medium text-gray-800"><?= esc($label) ?></p>
                     <?php if (! empty($row['description'])): ?>
-                        <p class="text-xs text-gray-400"><?= esc($row['description']) ?></p>
+                        <p class="text-xs text-gray-400"><?= esc($describe($row)) ?></p>
                     <?php endif ?>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -62,7 +103,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9"/>
             </svg>
-            Enregistrer les modifications
+            <?= esc(lang('Admin.saveChanges')) ?>
         </button>
     </div>
 </div>
@@ -70,11 +111,11 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
 <!-- Tableau des clés existantes -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Clés de configuration</h2>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.configKeys')) ?></h2>
     </div>
 
     <?php if (empty($tableConfig)): ?>
-        <p class="px-5 py-8 text-center text-sm text-gray-400">Aucune entrée.</p>
+        <p class="px-5 py-8 text-center text-sm text-gray-400"><?= esc(lang('Admin.noEntry')) ?></p>
     <?php else: ?>
         <form id="config-form" action="<?= site_url(admin_url('config/update')) ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
@@ -82,11 +123,11 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
-                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-1/5">Clé</th>
+                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-1/5"><?= esc(lang('Admin.key')) ?></th>
                             <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-28">Hook</th>
-                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-20">Type</th>
-                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide">Valeur</th>
-                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-1/5">Description</th>
+                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-20"><?= esc(lang('Admin.type')) ?></th>
+                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide"><?= esc(lang('Admin.value')) ?></th>
+                            <th scope="col" class="px-5 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wide w-1/5"><?= esc(lang('Admin.description')) ?></th>
                             <th scope="col" class="px-5 py-3 w-10"></th>
                         </tr>
                     </thead>
@@ -95,7 +136,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                             <?php if ($row['config_hook'] !== $currentHook): $currentHook = $row['config_hook']; ?>
                                 <tr class="bg-gray-50">
                                     <td colspan="6" class="px-5 py-2 text-xs font-semibold text-gray-500 uppercase tracking-widest">
-                                        <?= esc($currentHook ?? 'Général') ?>
+                                        <?= esc($currentHook ?? lang('Admin.generalHook')) ?>
                                     </td>
                                 </tr>
                             <?php endif ?>
@@ -111,26 +152,27 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                     <td class="px-5 py-3 align-middle">
                                         <div class="flex items-center gap-x-4">
                                             <div class="w-1/2 flex items-center justify-center h-14 rounded border border-gray-200 bg-gray-50">
-                                                <img src="<?= esc(asset_or_default('web-app-manifest-512x512.png')) ?>" alt="Icône actuelle"
+                                                <img src="<?= esc(asset_or_default('web-app-manifest-512x512.png')) ?>" alt="<?= esc(lang('Admin.currentIcon')) ?>"
                                                      class="max-h-12 max-w-full object-contain">
                                             </div>
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
+                                                <?php $chooseIconLabel = lang('Admin.chooseIconImage') ?>
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
                                                     <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
-                                                    <span id="label-icon_file">Choisir une image (512×512 px min.)…</span>
+                                                    <span id="label-icon_file"><?= esc($chooseIconLabel) ?></span>
                                                     <input type="file" name="icon_file" form="icon-form" class="sr-only"
                                                            accept="image/png,image/jpeg,image/webp"
-                                                           onchange="document.getElementById('label-icon_file').textContent = this.files[0]?.name ?? 'Choisir une image (512×512 px min.)…'">
+                                                           onchange="document.getElementById('label-icon_file').textContent = this.files[0]?.name ?? <?= esc(json_encode($chooseIconLabel), 'attr') ?>">
                                                 </label>
-                                                <p class="text-xs text-gray-400">PNG, JPG ou WebP — régénère toutes les tailles</p>
+                                                <p class="text-xs text-gray-400"><?= esc(lang('Admin.pngJpgWebpRegenerate')) ?></p>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-5 py-3 text-xs text-gray-500 align-middle">
-                                        Icône de l'application (512, 192, apple-touch-icon, favicon, favicon.ico)
+                                        <?= esc(lang('Admin.appIconDescription')) ?>
                                     </td>
                                     <td class="px-5 py-3 align-middle text-end">
-                                        <button type="submit" form="icon-form" class="text-gray-400 hover:text-blue-600 transition" title="Régénérer les icônes">
+                                        <button type="submit" form="icon-form" class="text-gray-400 hover:text-blue-600 transition" title="<?= esc(lang('Admin.regenerateIcons')) ?>">
                                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                                             </svg>
@@ -173,17 +215,17 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
                                                     <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
-                                                    <span id="label-logo_url">Choisir un logo…</span>
+                                                    <span id="label-logo_url"><?= esc(lang('Admin.chooseLogo')) ?></span>
                                                     <input type="file" name="logo_url_file" class="sr-only"
                                                            accept="image/svg+xml,image/png,image/jpeg,image/webp,image/gif"
                                                            onchange="previewUpload(this,'preview-logo_url','label-logo_url')">
                                                 </label>
                                                 <?php if (! empty($row['config_value'])): ?>
                                                     <label class="flex items-center gap-x-1.5 text-xs text-gray-400 cursor-pointer">
-                                                        <input type="checkbox" name="_clear[logo_url]" value="1" class="<?= $checkboxClass ?>"> Vider
+                                                        <input type="checkbox" name="_clear[logo_url]" value="1" class="<?= $checkboxClass ?>"> <?= esc(lang('Admin.clear')) ?>
                                                     </label>
                                                 <?php endif ?>
-                                                <p class="text-xs text-gray-400">SVG, PNG, JPG, WebP ou GIF</p>
+                                                <p class="text-xs text-gray-400"><?= esc(lang('Admin.svgPngJpgWebpGif')) ?></p>
                                             </div>
                                         </div>
                                     <?php elseif ($row['config_key'] === 'label_url'): ?>
@@ -197,17 +239,17 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
                                                     <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
-                                                    <span id="label-label_url">Choisir un label…</span>
+                                                    <span id="label-label_url"><?= esc(lang('Admin.chooseLabelImage')) ?></span>
                                                     <input type="file" name="label_url_file" class="sr-only"
                                                            accept="image/svg+xml,image/png,image/jpeg,image/webp,image/gif"
                                                            onchange="previewUpload(this,'preview-label_url','label-label_url')">
                                                 </label>
                                                 <?php if (! empty($row['config_value'])): ?>
                                                     <label class="flex items-center gap-x-1.5 text-xs text-gray-400 cursor-pointer">
-                                                        <input type="checkbox" name="_clear[label_url]" value="1" class="<?= $checkboxClass ?>"> Vider
+                                                        <input type="checkbox" name="_clear[label_url]" value="1" class="<?= $checkboxClass ?>"> <?= esc(lang('Admin.clear')) ?>
                                                     </label>
                                                 <?php endif ?>
-                                                <p class="text-xs text-gray-400">SVG, PNG, JPG, WebP ou GIF</p>
+                                                <p class="text-xs text-gray-400"><?= esc(lang('Admin.svgPngJpgWebpGif')) ?></p>
                                             </div>
                                         </div>
                                     <?php elseif ($row['config_key'] === 'background_url'): ?>
@@ -221,17 +263,17 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                             <div class="w-1/2 flex flex-col gap-y-1.5">
                                                 <label class="inline-flex items-center gap-x-1.5 cursor-pointer py-1.5 px-3 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition">
                                                     <svg class="size-3.5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
-                                                    <span id="label-background_url">Choisir une image de fond…</span>
+                                                    <span id="label-background_url"><?= esc(lang('Admin.chooseBackgroundImage')) ?></span>
                                                     <input type="file" name="background_url_file" class="sr-only"
                                                            accept="image/png,image/jpeg,image/webp,image/gif"
                                                            onchange="previewUpload(this,'preview-background_url','label-background_url')">
                                                 </label>
                                                 <?php if (! empty($row['config_value'])): ?>
                                                     <label class="flex items-center gap-x-1.5 text-xs text-gray-400 cursor-pointer">
-                                                        <input type="checkbox" name="_clear[background_url]" value="1" class="<?= $checkboxClass ?>"> Vider
+                                                        <input type="checkbox" name="_clear[background_url]" value="1" class="<?= $checkboxClass ?>"> <?= esc(lang('Admin.clear')) ?>
                                                     </label>
                                                 <?php endif ?>
-                                                <p class="text-xs text-gray-400">PNG, JPG, WebP ou GIF</p>
+                                                <p class="text-xs text-gray-400"><?= esc(lang('Admin.pngJpgWebpGif')) ?></p>
                                             </div>
                                         </div>
                                     <?php elseif (in_array($row['config_key'], ['smtp_pass', 'dolibarr_api_token'], true)): ?>
@@ -249,19 +291,19 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                                     <?php endif ?>
                                 </td>
                                 <td class="px-5 py-3 text-xs text-gray-500 align-middle">
-                                    <?= esc($row['description'] ?? '') ?>
+                                    <?= esc($describe($row)) ?>
                                 </td>
                                 <td class="px-5 py-3 align-middle text-end">
                                     <?php if ((bool) ($row['protected'] ?? true)): ?>
-                                        <span class="text-gray-300 cursor-not-allowed" title="Clé protégée">
+                                        <span class="text-gray-300 cursor-not-allowed" title="<?= esc(lang('Admin.protectedKeyTitle')) ?>">
                                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
                                             </svg>
                                         </span>
                                     <?php else: ?>
                                         <button type="submit" form="delete-row-<?= $row['id'] ?>"
-                                                onclick="return confirm('Supprimer « <?= esc($row['config_key']) ?> » ?')"
-                                                class="text-gray-400 hover:text-red-500 transition" title="Supprimer">
+                                                onclick="return confirm(<?= esc(json_encode(lang('Admin.confirmDeleteKey', [$row['config_key']])), 'attr') ?>)"
+                                                class="text-gray-400 hover:text-red-500 transition" title="<?= esc(lang('Admin.delete')) ?>">
                                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
                                             </svg>
@@ -278,7 +320,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                     <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9"/>
                     </svg>
-                    Enregistrer les modifications
+                    <?= esc(lang('Admin.saveChanges')) ?>
                 </button>
             </div>
         </form>
@@ -300,14 +342,14 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
 <!-- Test d'envoi d'email -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Test d'envoi d'email</h2>
-        <p class="mt-0.5 text-xs text-gray-400">Envoie un email de test avec la configuration SMTP actuelle.</p>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.testEmailSending')) ?></h2>
+        <p class="mt-0.5 text-xs text-gray-400"><?= esc(lang('Admin.testEmailSubtitle')) ?></p>
     </div>
     <form action="<?= site_url(admin_url('config/test-email')) ?>" method="post" class="p-5">
         <?= csrf_field() ?>
         <div class="flex items-end gap-x-3">
             <div class="flex-1 max-w-sm">
-                <label class="block text-xs font-medium text-gray-700 mb-1.5">Adresse destinataire</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.recipientAddress')) ?></label>
                 <input type="email" name="test_email_to" required placeholder="test@exemple.fr"
                        value="<?= esc(session()->getFlashdata('test_email_to') ?? '') ?>"
                        class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
@@ -316,7 +358,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                 <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/>
                 </svg>
-                Envoyer un test
+                <?= esc(lang('Admin.sendTest')) ?>
             </button>
         </div>
     </form>
@@ -325,13 +367,13 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
 <!-- Ajout d'une nouvelle clé -->
 <div class="bg-white rounded-xl border border-gray-200">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Ajouter une clé</h2>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.addKey')) ?></h2>
     </div>
     <form action="<?= site_url(admin_url('config/store')) ?>" method="post" class="p-5">
         <?= csrf_field() ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1.5">Clé <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.key')) ?> <span class="text-red-500">*</span></label>
                 <input type="text" name="config_key" required placeholder="ma_cle"
                        class="<?= $inputClass ?> font-mono">
             </div>
@@ -341,7 +383,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                        class="<?= $inputClass ?> font-mono">
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1.5">Type</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.type')) ?></label>
                 <select name="value_type" class="<?= $selectClass ?>">
                     <option value="string">string</option>
                     <option value="bool">bool</option>
@@ -351,13 +393,13 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1.5">Valeur</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.value')) ?></label>
                 <input type="text" name="config_value" placeholder="valeur"
                        class="<?= $inputClass ?>">
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1.5">Description</label>
-                <input type="text" name="description" placeholder="Description courte"
+                <label class="block text-xs font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.description')) ?></label>
+                <input type="text" name="description" placeholder="<?= esc(lang('Admin.shortDescriptionPlaceholder')) ?>"
                        class="<?= $inputClass ?>">
             </div>
         </div>
@@ -366,7 +408,7 @@ $tableConfig = array_values(array_filter($config, fn($row) => ! isset($featureLa
                 <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                 </svg>
-                Ajouter
+                <?= esc(lang('Admin.add')) ?>
             </button>
         </div>
     </form>

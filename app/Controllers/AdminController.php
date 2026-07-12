@@ -19,7 +19,7 @@ class AdminController extends BaseController
         }
 
         if (! $this->adminCredentialsConfigured()) {
-            session()->setFlashdata('error', "app.admin_login et app.admin_password doivent être définis dans le fichier .env.");
+            session()->setFlashdata('error', lang('Admin.credentialsNotConfigured'));
         }
 
         return view('admin/login');
@@ -29,7 +29,7 @@ class AdminController extends BaseController
     public function doLogin(): \CodeIgniter\HTTP\RedirectResponse
     {
         if (! $this->adminCredentialsConfigured()) {
-            return redirect()->to(admin_url('login'))->with('error', "app.admin_login et app.admin_password doivent être définis dans le fichier .env.");
+            return redirect()->to(admin_url('login'))->with('error', lang('Admin.credentialsNotConfigured'));
         }
 
         $login    = trim((string) $this->request->getPost('login'));
@@ -39,7 +39,7 @@ class AdminController extends BaseController
         $validPassword = env('app.admin_password', '');
 
         if ($login !== $validLogin || $password !== $validPassword) {
-            return redirect()->to(admin_url('login'))->with('error', 'Identifiants incorrects.');
+            return redirect()->to(admin_url('login'))->with('error', lang('Admin.incorrectCredentials'));
         }
 
         session()->set('admin_logged_in', true);
@@ -61,6 +61,16 @@ class AdminController extends BaseController
     {
         session()->remove(['admin_logged_in', 'admin_login']);
         return redirect()->to(admin_url('login'));
+    }
+
+    // Change la langue de l'interface admin (mémorisée en session) et revient à la page précédente
+    public function setLocale(string $locale): \CodeIgniter\HTTP\RedirectResponse
+    {
+        if (in_array($locale, config(\Config\App::class)->supportedLocales, true)) {
+            session()->set('admin_locale', $locale);
+        }
+
+        return redirect()->back();
     }
 
     // Tableau de bord : statistiques globales, liste des utilisateurs, activité récente paginée
@@ -138,7 +148,7 @@ class AdminController extends BaseController
     {
         model(UserModel::class)->delete($id);
 
-        return redirect()->to(admin_url())->with('success', 'Utilisateur supprimé.');
+        return redirect()->to(admin_url())->with('success', lang('Admin.userDeleted'));
     }
 
     // Vide entièrement la table des utilisateurs (hors soft-delete, suppression réelle)
@@ -146,7 +156,7 @@ class AdminController extends BaseController
     {
         model(UserModel::class)->truncate();
 
-        return redirect()->to(admin_url())->with('success', 'Tous les utilisateurs ont été supprimés.');
+        return redirect()->to(admin_url())->with('success', lang('Admin.allUsersDeleted'));
     }
 
     // Vide entièrement le journal d'activité
@@ -154,7 +164,7 @@ class AdminController extends BaseController
     {
         model(LogModel::class)->truncate();
 
-        return redirect()->to(admin_url())->with('success', 'Le journal d\'activité a été vidé.');
+        return redirect()->to(admin_url())->with('success', lang('Admin.activityLogCleared'));
     }
 
     // Vide la table des uploads et supprime les fichiers physiques associés
@@ -164,7 +174,7 @@ class AdminController extends BaseController
 
         model(UploadModel::class)->truncate();
 
-        return redirect()->to(admin_url())->with('success', 'Tous les fichiers uploadés ont été supprimés.');
+        return redirect()->to(admin_url())->with('success', lang('Admin.allUploadsDeleted'));
     }
 
     // Supprime une entrée uploads dont le fichier physique n'existe plus (lien mort)
@@ -173,16 +183,16 @@ class AdminController extends BaseController
         $upload = model(UploadModel::class)->find($id);
 
         if (! $upload) {
-            return redirect()->to(admin_url())->with('error', 'Entrée introuvable.');
+            return redirect()->to(admin_url())->with('error', lang('Admin.entryNotFound'));
         }
 
         if (! $this->isUploadFileMissing($upload)) {
-            return redirect()->to(admin_url())->with('error', 'Le fichier existe toujours sur le disque, suppression refusée.');
+            return redirect()->to(admin_url())->with('error', lang('Admin.fileStillExistsDeletionRefused'));
         }
 
         model(UploadModel::class)->delete($id, true);
 
-        return redirect()->to(admin_url())->with('success', 'Entrée supprimée.');
+        return redirect()->to(admin_url())->with('success', lang('Admin.entryDeleted'));
     }
 
     // Vrai si le fichier physique associé à l'entrée uploads n'existe plus sur le disque
@@ -295,7 +305,7 @@ class AdminController extends BaseController
         // Mots-clés déclenchant le masquage de la valeur
         $sensitive = ['password', 'pass', 'token', 'secret', 'key', 'smtp'];
         $sections  = [];
-        $current   = 'Général';
+        $current   = lang('Admin.generalHook');
 
         foreach ($lines as $line) {
             // Séparateur de section (#-------)

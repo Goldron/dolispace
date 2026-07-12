@@ -71,17 +71,16 @@ class ConfigController extends BaseController
                 $file = $this->request->getFile($configKey . '_file');
                 $phpCode = $file ? $file->getError() : UPLOAD_ERR_NO_FILE;
                 $phpErrors = [
-                    UPLOAD_ERR_INI_SIZE  => sprintf('Le fichier dépasse la limite serveur (%s).', ini_get('upload_max_filesize')),
-                    UPLOAD_ERR_FORM_SIZE => 'Le fichier dépasse la limite du formulaire.',
-                    UPLOAD_ERR_PARTIAL   => "L'envoi du fichier a été interrompu.",
-                    UPLOAD_ERR_NO_TMP_DIR => 'Dossier temporaire serveur manquant.',
-                    UPLOAD_ERR_CANT_WRITE => 'Impossible d\'écrire le fichier sur le disque.',
+                    UPLOAD_ERR_INI_SIZE  => lang('Admin.fileExceedsServerLimit', [ini_get('upload_max_filesize')]),
+                    UPLOAD_ERR_FORM_SIZE => lang('Admin.fileExceedsFormLimit'),
+                    UPLOAD_ERR_PARTIAL   => lang('Admin.uploadInterrupted'),
+                    UPLOAD_ERR_NO_TMP_DIR => lang('Admin.missingTempDir'),
+                    UPLOAD_ERR_CANT_WRITE => lang('Admin.cannotWriteFile'),
                 ];
-                $msg = $phpErrors[$phpCode] ?? sprintf(
-                    "Format non autorisé pour « %s ». Formats acceptés : PNG, JPG, WebP, GIF%s.",
+                $msg = $phpErrors[$phpCode] ?? lang('Admin.formatNotAllowedFor', [
                     $configKey,
-                    $configKey === 'logo_url' ? ', SVG' : ''
-                );
+                    $configKey === 'logo_url' ? lang('Admin.formatsWithSvg') : lang('Admin.formatsNoSvg'),
+                ]);
                 return redirect()->to(admin_url('config'))->with('error', $msg);
             }
             if ($result !== null) {
@@ -120,7 +119,7 @@ class ConfigController extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to(admin_url('config'))->with('success', 'Configuration mise à jour.');
+        return redirect()->to(admin_url('config'))->with('success', lang('Admin.configUpdated'));
     }
 
     // Ajoute une nouvelle clé de configuration
@@ -132,12 +131,12 @@ class ConfigController extends BaseController
         $desc  = trim($this->request->getPost('description') ?? '');
 
         if (empty($key)) {
-            return redirect()->to(admin_url('config'))->with('error', 'La clé est obligatoire.');
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.keyRequired'));
         }
 
         model(ConfigModel::class)->put($key, $value, $type, $desc ?: null);
 
-        return redirect()->to(admin_url('config'))->with('success', "Clé « {$key} » ajoutée.");
+        return redirect()->to(admin_url('config'))->with('success', lang('Admin.keyAdded', [$key]));
     }
 
     // Supprime une clé de configuration (refusé si elle est protégée)
@@ -146,12 +145,12 @@ class ConfigController extends BaseController
         $row = model(ConfigModel::class)->find($id);
 
         if (! $row || (bool) $row['protected']) {
-            return redirect()->to(admin_url('config'))->with('error', 'Cette clé est protégée et ne peut pas être supprimée.');
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.keyProtectedCannotDelete'));
         }
 
         model(ConfigModel::class)->delete($id);
 
-        return redirect()->to(admin_url('config'))->with('success', 'Entrée supprimée.');
+        return redirect()->to(admin_url('config'))->with('success', lang('Admin.entryDeleted'));
     }
 
     // Régénère toutes les icônes de l'application à partir d'une image source (512×512 minimum)
@@ -160,20 +159,20 @@ class ConfigController extends BaseController
         $file = $this->request->getFile('icon_file');
 
         if (! $file || ! $file->isValid()) {
-            return redirect()->to(admin_url('config'))->with('error', "Aucun fichier valide reçu.");
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.noValidFileReceived'));
         }
 
         $allowed = ['image/png', 'image/jpeg', 'image/webp'];
 
         if (! in_array($file->getMimeType(), $allowed, true)) {
-            return redirect()->to(admin_url('config'))->with('error', "Format non autorisé pour l'icône. Formats acceptés : PNG, JPG, WebP.");
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.iconFormatNotAllowed'));
         }
 
         $tempPath   = $file->getTempName();
         $dimensions = @getimagesize($tempPath);
 
         if (! $dimensions || $dimensions[0] < 512 || $dimensions[1] < 512) {
-            return redirect()->to(admin_url('config'))->with('error', "L'image doit faire au moins 512×512 pixels.");
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.imageMinSize'));
         }
 
         foreach (self::ICON_SIZES as $filename => $size) {
@@ -183,17 +182,17 @@ class ConfigController extends BaseController
                     ->fit($size, $size, 'center')
                     ->save(FCPATH . 'images/' . $filename);
             } catch (\Throwable) {
-                return redirect()->to(admin_url('config'))->with('error', "Échec de la génération de l'icône « {$filename} ».");
+                return redirect()->to(admin_url('config'))->with('error', lang('Admin.iconGenerationFailed', [$filename]));
             }
         }
 
         try {
             $this->generateFaviconIco($tempPath);
         } catch (\Throwable) {
-            return redirect()->to(admin_url('config'))->with('error', 'Échec de la génération de favicon.ico.');
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.faviconGenerationFailed'));
         }
 
-        return redirect()->to(admin_url('config'))->with('success', 'Icônes régénérées avec succès.');
+        return redirect()->to(admin_url('config'))->with('success', lang('Admin.iconsRegenerated'));
     }
 
     // Construit un favicon.ico multi-résolution (16/32/48 px) à partir d'images PNG encapsulées
@@ -245,19 +244,19 @@ class ConfigController extends BaseController
         $to = trim($this->request->getPost('test_email_to') ?? '');
 
         if (empty($to) || ! filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->to(admin_url('config'))->with('error', 'Adresse email invalide.');
+            return redirect()->to(admin_url('config'))->with('error', lang('Auth.invalidEmail'));
         }
 
         $email = make_email();
         $email->setTo($to);
-        $email->setSubject('Test SMTP — ' . cfg('company_name', 'Espace client'));
+        $email->setSubject(lang('Admin.smtpTestTitle') . ' — ' . cfg('company_name', 'Espace client'));
         $email->setMessage(view('admin/emails/test_email', ['to' => $to]));
 
         if (! $email->send(false)) {
-            return redirect()->to(admin_url('config'))->with('error', 'Échec de l\'envoi : ' . $email->printDebugger(['headers', 'subject', 'body']));
+            return redirect()->to(admin_url('config'))->with('error', lang('Admin.emailSendFailed', [$email->printDebugger(['headers', 'subject', 'body'])]));
         }
 
-        return redirect()->to(admin_url('config'))->with('success', "Email de test envoyé à {$to}.");
+        return redirect()->to(admin_url('config'))->with('success', lang('Admin.testEmailSent', [$to]));
     }
 
     // Traite l'upload d'une image de config : valide, déplace, redimensionne si besoin.

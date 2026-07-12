@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
-    <title>Test SMTP</title>
+    <title><?= esc(lang('Admin.smtpTestTitle')) ?></title>
     <style>
         body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 40px 16px; }
         .container { max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 8px; padding: 40px; border: 1px solid #e5e7eb; }
@@ -23,15 +23,15 @@
             <div class="logo" style="font-size:18px;font-weight:bold;color:#111827;"><?= esc(cfg('company_name', '')) ?></div>
         <?php endif ?>
 
-        <span class="badge">Test SMTP</span>
-        <h1>Configuration email opérationnelle</h1>
+        <span class="badge"><?= esc(lang('Admin.smtpTestTitle')) ?></span>
+        <h1><?= esc(lang('Admin.emailConfigOperational')) ?></h1>
 
-        <p>Bonjour,</p>
-        <p>Cet email confirme que la configuration SMTP de votre espace client fonctionne correctement.</p>
-        <p>Destinataire testé : <strong><?= esc($to) ?></strong></p>
+        <p><?= esc(lang('Admin.helloComma')) ?></p>
+        <p><?= esc(lang('Admin.smtpConfigWorks')) ?></p>
+        <p><?= esc(lang('Admin.recipientTested')) ?> <strong><?= esc($to) ?></strong></p>
 
         <div class="footer">
-            <p>Envoyé depuis l'interface d'administration — <?= esc(cfg('company_name', '')) ?></p>
+            <p><?= esc(lang('Admin.sentFromAdminInterface')) ?> <?= esc(cfg('company_name', '')) ?></p>
         </div>
     </div>
 </body>

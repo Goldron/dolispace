@@ -12,7 +12,9 @@
 /** @var array<string, bool> $dolibarrModules */
 ?>
 <?php
-function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
+function badge(bool $ok, ?string $yes = null, ?string $no = null): string {
+    $yes ??= lang('Admin.ok');
+    $no  ??= lang('Admin.errorLabel');
     return $ok
         ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">' . $yes . '</span>'
         : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">'   . $no  . '</span>';
@@ -21,8 +23,8 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-xl font-semibold text-gray-900">État du système</h1>
-        <p class="mt-1 text-sm text-gray-500">Diagnostics et variables de configuration.</p>
+        <h1 class="text-xl font-semibold text-gray-900"><?= esc(lang('Admin.systemStatus')) ?></h1>
+        <p class="mt-1 text-sm text-gray-500"><?= esc(lang('Admin.diagnosticsSubtitle')) ?></p>
     </div>
     <span class="text-xs font-mono text-gray-400">v<?= APP_VERSION ?></span>
 </div>
@@ -32,15 +34,15 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 
     <!-- ClamAV -->
     <div class="bg-white rounded-xl border border-gray-200 p-5">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Antivirus ClamAV</p>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Admin.clamavAntivirus')) ?></p>
         <dl class="space-y-2">
             <div class="flex items-center justify-between">
-                <dt class="text-xs text-gray-500">Disponible sur le serveur</dt>
-                <dd><?= badge($clamAvailable, 'Oui', 'Non') ?></dd>
+                <dt class="text-xs text-gray-500"><?= esc(lang('Admin.availableOnServer')) ?></dt>
+                <dd><?= badge($clamAvailable, lang('Admin.yes'), lang('Admin.no')) ?></dd>
             </div>
             <div class="flex items-center justify-between">
-                <dt class="text-xs text-gray-500">Activé dans l'application</dt>
-                <dd><?= badge($clamEnabled, 'Oui', 'Non') ?></dd>
+                <dt class="text-xs text-gray-500"><?= esc(lang('Admin.enabledInApp')) ?></dt>
+                <dd><?= badge($clamEnabled, lang('Admin.yes'), lang('Admin.no')) ?></dd>
             </div>
         </dl>
         <?php if ($clamVersion): ?>
@@ -52,11 +54,11 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
     <div class="bg-white rounded-xl border border-gray-200 p-5">
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">SMTP</p>
         <div class="flex items-center gap-x-2 mb-3">
-            <?= badge($smtpStatus['active'], 'Configuré', 'Non configuré') ?>
+            <?= badge($smtpStatus['active'], lang('Admin.configured'), lang('Admin.notConfigured')) ?>
         </div>
         <?php if ($smtpStatus['active']): ?>
             <dl class="text-xs text-gray-500 space-y-1">
-                <div class="flex gap-x-2"><dt class="text-gray-400 w-10">Hôte</dt><dd><?= esc($smtpStatus['host']) ?>:<?= esc($smtpStatus['port']) ?></dd></div>
+                <div class="flex gap-x-2"><dt class="text-gray-400 w-10"><?= esc(lang('Admin.host')) ?></dt><dd><?= esc($smtpStatus['host']) ?>:<?= esc($smtpStatus['port']) ?></dd></div>
                 <div class="flex gap-x-2"><dt class="text-gray-400 w-10">From</dt><dd><?= esc($smtpStatus['from'] ?? '') ?></dd></div>
             </dl>
         <?php endif ?>
@@ -64,17 +66,17 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 
     <!-- Dolibarr API -->
     <div class="bg-white rounded-xl border border-gray-200 p-5">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">API Dolibarr</p>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3"><?= esc(lang('Admin.dolibarrApi')) ?></p>
         <?php $allOk = array_reduce($dolibarr, fn($c, $e) => $c && (bool)$e['ok'], true) ?>
         <div class="flex items-center gap-x-2 mb-3">
-            <?= badge((bool)$allOk, 'Opérationnelle', 'Dégradée') ?>
+            <?= badge((bool)$allOk, lang('Admin.operational'), lang('Admin.degraded')) ?>
         </div>
         <p class="text-xs text-gray-400 truncate mb-3"><?= esc($apiUrl) ?></p>
         <?php if ($dolibarrInfo): ?>
             <dl class="text-xs text-gray-500 space-y-1">
-                <div class="flex justify-between"><dt class="text-gray-400">Version</dt><dd><?= esc((string)($dolibarrInfo['dolibarr_version'] ?? '—')) ?></dd></div>
-                <div class="flex justify-between"><dt class="text-gray-400">Environnement</dt><dd><?= esc((string)($dolibarrInfo['environment'] ?? '—')) ?></dd></div>
-                <div class="flex justify-between"><dt class="text-gray-400">Accès verrouillé</dt><dd><?= ($dolibarrInfo['access_locked'] ?? '1') === '0' ? 'Non' : 'Oui' ?></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-400"><?= esc(lang('Admin.version')) ?></dt><dd><?= esc((string)($dolibarrInfo['dolibarr_version'] ?? '—')) ?></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-400"><?= esc(lang('Admin.environment')) ?></dt><dd><?= esc((string)($dolibarrInfo['environment'] ?? '—')) ?></dd></div>
+                <div class="flex justify-between"><dt class="text-gray-400"><?= esc(lang('Admin.accessLocked')) ?></dt><dd><?= esc(($dolibarrInfo['access_locked'] ?? '1') === '0' ? lang('Admin.no') : lang('Admin.yes')) ?></dd></div>
             </dl>
         <?php endif ?>
     </div>
@@ -84,7 +86,7 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 <!-- Endpoints Dolibarr -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Endpoints Dolibarr</h2>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.dolibarrEndpoints')) ?></h2>
     </div>
     <ul class="divide-y divide-gray-100">
         <!-- Résultat du endpoint /status -->
@@ -92,7 +94,7 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
             <span class="text-sm font-mono text-gray-700">/status</span>
             <div class="flex items-center gap-x-3">
                 <?php if (! $dolibarrInfo): ?>
-                    <span class="text-xs text-red-500">Réponse invalide ou inaccessible</span>
+                    <span class="text-xs text-red-500"><?= esc(lang('Admin.invalidOrUnreachableResponse')) ?></span>
                 <?php endif ?>
                 <?= badge($dolibarrInfo !== null) ?>
             </div>
@@ -114,14 +116,14 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 <!-- Modules Dolibarr -->
 <div class="bg-white rounded-xl border border-gray-200 mb-8">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Modules Dolibarr</h2>
-        <p class="mt-0.5 text-xs text-gray-400">État détecté via <code class="font-mono">GET /setup/modules</code> — lecture seule.</p>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.dolibarrModules')) ?></h2>
+        <p class="mt-0.5 text-xs text-gray-400"><?= lang('Admin.modulesDetectedVia', ['<code class="font-mono">GET /setup/modules</code>']) ?></p>
     </div>
     <ul class="divide-y divide-gray-100">
         <?php foreach ($dolibarrModules as $moduleName => $moduleEnabled): ?>
             <li class="flex items-center justify-between px-5 py-3">
                 <span class="text-sm font-mono text-gray-700"><?= esc((string)$moduleName) ?></span>
-                <?= badge((bool)$moduleEnabled, 'Activé', 'Non détecté') ?>
+                <?= badge((bool)$moduleEnabled, lang('Admin.activated'), lang('Admin.notDetected')) ?>
             </li>
         <?php endforeach ?>
     </ul>
@@ -130,8 +132,8 @@ function badge(bool $ok, string $yes = 'OK', string $no = 'Erreur'): string {
 <!-- Variables .env -->
 <div class="bg-white rounded-xl border border-gray-200">
     <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-800">Variables de configuration</h2>
-        <p class="text-xs text-gray-400 mt-0.5">Les valeurs sensibles sont masquées.</p>
+        <h2 class="text-sm font-semibold text-gray-800"><?= esc(lang('Admin.configVariables')) ?></h2>
+        <p class="text-xs text-gray-400 mt-0.5"><?= esc(lang('Admin.sensitiveValuesHidden')) ?></p>
     </div>
     <?php foreach ($envVars as $section => $vars): ?>
         <div class="px-5 py-3 border-b border-gray-100 bg-gray-50">

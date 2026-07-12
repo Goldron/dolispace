@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration — <?= esc((string) cfg('company_name')) ?></title>
+    <title><?= esc(lang('Admin.heading')) ?> — <?= esc((string) cfg('company_name')) ?></title>
     <link rel="icon" type="image/png" href="<?= asset_or_default('favicon-96x96.png') ?>" sizes="96x96">
     <link rel="shortcut icon" href="<?= asset_or_default('favicon.ico') ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= asset_or_default('apple-touch-icon.png') ?>">
@@ -19,8 +19,8 @@
 
         <div class="bg-white rounded-xl border border-gray-200 p-8">
 
-            <h1 class="text-lg font-semibold text-gray-800 mb-1">Administration</h1>
-            <p class="text-sm text-gray-500 mb-6">Accès réservé aux administrateurs.</p>
+            <h1 class="text-lg font-semibold text-gray-800 mb-1"><?= esc(lang('Admin.heading')) ?></h1>
+            <p class="text-sm text-gray-500 mb-6"><?= esc(lang('Admin.restrictedAccess')) ?></p>
 
             <?php if (session()->getFlashdata('error')): ?>
                 <div class="mb-5 flex items-center gap-x-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -34,7 +34,7 @@
             <?= form_open(admin_url('login')) ?>
 
                 <div class="mb-4">
-                    <label for="login" class="block text-sm font-medium text-gray-700 mb-1.5">Identifiant</label>
+                    <label for="login" class="block text-sm font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.loginLabel')) ?></label>
                     <input
                         type="text"
                         id="login"
@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="mb-6">
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Mot de passe</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5"><?= esc(lang('Admin.passwordLabel')) ?></label>
                     <input
                         type="password"
                         id="password"
@@ -59,7 +59,7 @@
                 </div>
 
                 <button type="submit" class="w-full py-2.5 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer">
-                    Se connecter
+                    <?= esc(lang('Admin.signIn')) ?>
                 </button>
 
             <?= form_close() ?>
