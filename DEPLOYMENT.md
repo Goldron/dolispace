@@ -66,6 +66,9 @@ The seeder also enables the feature toggles by default:
 
 Adjust them in the **"Features"** section of `admin/config` according to the modules actually enabled on the Dolibarr side (checkable in `admin/status`).
 
+> [!WARNING]
+> To link a user account to a Dolibarr third party, the third party's email address must be filled in, valid, and unique across Dolibarr. When `search_contact_first` is enabled, the lookup is first performed against Dolibarr contacts before falling back to the third party's own email.
+
 ## 5. Nginx
 
 Adapt the existing vhost (`/etc/nginx/sites-available/client.goldron.fr`):

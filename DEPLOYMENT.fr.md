@@ -58,6 +58,9 @@ Le seeder active aussi par défaut les toggles de fonctionnalités (`commande_en
 "Fonctionnalités" de `admin/config` selon les modules réellement activés côté Dolibarr (vérifiables sur
 `admin/status`).
 
+> [!WARNING]
+> Pour rattacher un compte utilisateur à un tiers Dolibarr, l’adresse email du tiers doit être renseignée, valide et unique dans Dolibarr. Quand `search_contact_first` est activé, la recherche s’effectue d’abord à partir des contacts avant de rechercher l’email du tiers.
+
 ## 5. Nginx
 
 Adapter le vhost existant (`/etc/nginx/sites-available/client.goldron.fr`) :
