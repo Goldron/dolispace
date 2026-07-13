@@ -48,6 +48,12 @@ class AuthController extends BaseController
             return redirect()->to('auth/password');
         }
 
+        // Email enregistré sur plusieurs tiers/contacts Dolibarr : Dolibarr n'impose pas l'unicité,
+        // on refuse plutôt que de rattacher arbitrairement au premier tiers trouvé
+        if ($this->hasDuplicateEmailInDolibarr($email)) {
+            return redirect()->to('auth')->with('error', lang('Auth.duplicateEmailContactSupport'));
+        }
+
         // Vérification dans Dolibarr : contact d'abord, tiers ensuite
         $partyId = $this->resolvePartyIdFromEmail($email);
 
@@ -82,6 +88,15 @@ class AuthController extends BaseController
         }
 
         return view('auth/denied');
+    }
+
+    // Vrai si l'email correspond à plus d'un tiers ou plus d'un contact dans Dolibarr
+    private function hasDuplicateEmailInDolibarr(string $email): bool
+    {
+        $dolibarr = service('dolibarr');
+
+        return $dolibarr->countThirdpartiesByEmail($email) > 1
+            || $dolibarr->countContactsByEmail($email) > 1;
     }
 
     // Résout l'ID du tiers Dolibarr à partir d'un email : contact d'abord, tiers ensuite.

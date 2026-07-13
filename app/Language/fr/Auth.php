@@ -54,6 +54,7 @@ return [
     // AuthController messages
     'invalidEmail'          => 'Adresse email invalide.',
     'accountAlreadyExists'  => "Ce compte existe déjà. Veuillez vous connecter avec l'email de votre profil.",
+    'duplicateEmailContactSupport' => 'Cette adresse email est enregistrée sur plusieurs comptes dans notre système. Merci de contacter le service support.',
     'incorrectPassword'     => 'Mot de passe incorrect.',
     'accountDisabled'       => 'Votre compte est désactivé. Contactez-nous.',
     'invalidOrExpiredLink'  => 'Le lien de validation est invalide ou a expiré. Veuillez recommencer.',

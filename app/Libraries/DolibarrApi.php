@@ -47,6 +47,16 @@ class DolibarrApi
         return $this->request('GET', "/thirdparties/email/{$email}");
     }
 
+    // Compte les tiers avec un email exact : Dolibarr n'impose pas l'unicité, l'endpoint
+    // singulier /thirdparties/email/{email} peut donc renvoyer arbitrairement l'un des doublons
+    public function countThirdpartiesByEmail(string $email): int
+    {
+        $filter = "(t.email:=:'" . str_replace("'", "\\'", $email) . "')";
+        $result = $this->request('GET', '/thirdparties', ['sqlfilters' => $filter, 'limit' => 2]);
+
+        return isset($result['error']) ? 0 : count($result);
+    }
+
     // -------------------------------------------------------------------------
     // Factures (Invoices)
     // -------------------------------------------------------------------------
@@ -93,6 +103,15 @@ class DolibarrApi
     public function getContactByEmail(string $email): array
     {
         return $this->request('GET', "/contacts/email/{$email}");
+    }
+
+    // Compte les contacts avec un email exact (même limite d'unicité que les tiers)
+    public function countContactsByEmail(string $email): int
+    {
+        $filter = "(t.email:=:'" . str_replace("'", "\\'", $email) . "')";
+        $result = $this->request('GET', '/contacts', ['sqlfilters' => $filter, 'limit' => 2]);
+
+        return isset($result['error']) ? 0 : count($result);
     }
 
     public function createContact(array $data): array
